@@ -85,32 +85,28 @@ export const Timeline: React.FC<TimelineProps> = ({ isLoaded }) => {
             Our special day schedule of events
           </p>
           
-          <div className="relative">
-            {/* Vertical line */}
-            <div className="absolute left-1/2 transform -translate-x-1/2 h-full w-px bg-primary/30"></div>
+          <div className={styles.timelineContainer}>
+            {/* Timeline vertical line */}
+            <div className={styles.timelineLine}></div>
             
             {/* Timeline events */}
             {timelineEvents.map((event, index) => (
               <div
                 key={index}
-                className={`timeline-item relative flex items-center mb-16 last:mb-0 transition-all duration-700 opacity-0 transform translate-y-10`}
-                style={{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }}
+                className={`timeline-item ${styles.timelineEvent} ${
+                  index % 2 === 0 ? styles.timelineEventLeft : styles.timelineEventRight
+                } relative transition-all duration-700 opacity-0 transform translate-y-10`}
               >
                 {/* Timeline dot */}
-                <div className="absolute left-1/2 transform -translate-x-1/2 w-5 h-5 rounded-full bg-primary border-4 border-white"></div>
+                <div className={styles.timelineDot}></div>
                 
                 {/* Content */}
-                <div className={`w-5/12 ${index % 2 === 0 ? 'pr-12 text-right' : 'pl-12'}`}>
-                  <div className="bg-white p-6 rounded-lg shadow-md border border-primary/10">
-                    <span className="inline-block mb-2 text-sm text-primary/80 font-semibold">{event.date}</span>
-                    <h3 className="text-2xl font-playfair mb-1">{event.title}</h3>
-                    <p className="text-sm text-foreground/70 mb-3">{event.location}</p>
-                    <p className="font-cormorant text-foreground/90">{event.description}</p>
-                  </div>
+                <div className={styles.timelineContent}>
+                  <span className="inline-block mb-2 text-sm text-primary font-semibold">{event.date}</span>
+                  <h3 className="text-2xl font-playfair mb-1">{event.title}</h3>
+                  <p className="text-sm text-foreground/70 mb-3">{event.location}</p>
+                  <p className="font-cormorant text-foreground/90">{event.description}</p>
                 </div>
-                
-                {/* Empty space for the other side */}
-                <div className="w-5/12"></div>
               </div>
             ))}
           </div>
