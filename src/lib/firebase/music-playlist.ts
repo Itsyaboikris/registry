@@ -66,6 +66,7 @@ export async function getSongSuggestions(suggestionLimit: number = 50, onlyAppro
     
     // Get suggestions
     const querySnapshot = await getDocs(q);
+    
     return querySnapshot.docs.map(doc => {
       const data = doc.data();
       return {

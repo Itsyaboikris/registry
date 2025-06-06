@@ -53,7 +53,6 @@ export async function getGuestMessages(messageLimit: number = 50, onlyApproved: 
       );
     } else {
       // Get all messages (for admin)
-      // Add admin=true parameter for Firestore rules
       q = query(
         messagesRef, 
         orderBy('timestamp', 'desc'), 
@@ -61,9 +60,7 @@ export async function getGuestMessages(messageLimit: number = 50, onlyApproved: 
       );
     }
     
-    // Get messages - pass admin=true parameter for admin access
-    // For Firebase rules to work with query parameters
-    const queryOptions = onlyApproved ? {} : { admin: "true" };
+    // Get messages
     const querySnapshot = await getDocs(q);
     
     return querySnapshot.docs.map(doc => {

@@ -103,6 +103,11 @@ export default function AdminPage() {
     }
   };
   
+  const handleLogout = () => {
+    localStorage.removeItem("wedding_admin_auth");
+    setIsAuthenticated(false);
+  };
+  
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#faf7f2] p-4">
@@ -138,10 +143,7 @@ export default function AdminPage() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="font-playfair text-3xl">Admin Dashboard</h1>
           <button
-            onClick={() => {
-              localStorage.removeItem("wedding_admin_auth");
-              setIsAuthenticated(false);
-            }}
+            onClick={handleLogout}
             className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
           >
             Logout
