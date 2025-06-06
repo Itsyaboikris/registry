@@ -55,12 +55,12 @@ export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
           <p className={`text-2xl font-cormorant mb-12 text-white/80 ${isVisible ? 'animate-slide-up delay-300' : ''}`}>
             June 15, 2025 • New York City
           </p>
-          <div className={`${isVisible ? 'animate-slide-up delay-400' : ''}`}>
+          <div className={`mb-12 ${isVisible ? 'animate-slide-up delay-400' : ''}`}>
             <Countdown targetDate="2025-06-15T00:00:00" />
           </div>
           <Link 
             href="/rsvp" 
-            className={`mt-12 px-8 py-4 border-2 border-primary text-primary font-cormorant text-xl uppercase tracking-wider hover:bg-primary hover:text-white transition-all duration-300 ${isVisible ? 'animate-slide-up delay-500' : ''}`}
+            className={`inline-block px-8 py-4 border-2 border-primary text-primary font-cormorant text-xl uppercase tracking-wider hover:bg-primary hover:text-white transition-all duration-300 ${isVisible ? 'animate-slide-up delay-500' : ''}`}
           >
             RSVP Now
           </Link>
