@@ -47,7 +47,7 @@ export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
       <div className="relative z-10 text-center px-4">
         <div className={`max-w-4xl mx-auto ${isVisible ? 'animate-fade-in' : ''}`}>
           <h1 className={`text-7xl font-playfair mb-6 gold-text ${isVisible ? 'animate-slide-up delay-100' : ''}`}>
-            Sarah & Michael
+            Kristi & Joshua
           </h1>
           <p className={`text-4xl font-cormorant mb-4 text-white/90 ${isVisible ? 'animate-slide-up delay-200' : ''}`}>
             Are Getting Married

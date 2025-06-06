@@ -18,7 +18,7 @@ const milestones: StoryMilestone[] = [
     id: '1',
     date: 'June 15, 2020',
     title: 'First Met',
-    description: 'We first met at a mutual friend\'s birthday party. Sarah was wearing a blue dress, and Michael couldn\'t take his eyes off her.',
+    description: 'We first met at a mutual friend\'s birthday party. Kristi was wearing a blue dress, and Joshuaael couldn\'t take his eyes off her.',
     image: 'https://images.unsplash.com/photo-1522673607200-164d1b3ce551'
   },
   {
@@ -32,7 +32,7 @@ const milestones: StoryMilestone[] = [
     id: '3',
     date: 'December 24, 2020',
     title: 'Made It Official',
-    description: 'Michael asked Sarah to be his girlfriend on Christmas Eve under the stars. She said yes without hesitation.',
+    description: 'Joshuaael asked Kristi to be his girlfriend on Christmas Eve under the stars. She said yes without hesitation.',
     image: 'https://images.unsplash.com/photo-1439539698758-ba2680ecadb9'
   },
   {
@@ -46,7 +46,7 @@ const milestones: StoryMilestone[] = [
     id: '5',
     date: 'February 14, 2023',
     title: 'The Proposal',
-    description: 'Michael proposed during a surprise weekend getaway to the mountains. Sarah cried tears of joy before saying yes.',
+    description: 'Joshuaael proposed during a surprise weekend getaway to the mountains. Kristi cried tears of joy before saying yes.',
     image: 'https://images.unsplash.com/photo-1511285560929-80b456fea0bc'
   }
 ];
