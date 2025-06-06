@@ -1,8 +1,12 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { submitGuestMessage, getGuestMessages, GuestMessage } from '@/lib/firebase/guestbook';
+import Script from 'next/script';
+
+// reCAPTCHA site key
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key
 
 interface GuestBookProps {
   isLoaded: boolean;
@@ -35,6 +39,16 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
     };
 
     loadMessages();
+    
+    // Initialize reCAPTCHA
+    const loadRecaptcha = () => {
+      const script = document.createElement('script');
+      script.src = 'https://www.google.com/recaptcha/api.js';
+      script.async = true;
+      document.body.appendChild(script);
+    };
+    
+    loadRecaptcha();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -51,6 +65,18 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
       return;
     }
     
+    // Temporarily disable reCAPTCHA validation
+    // Uncomment when reCAPTCHA is working properly
+    /*
+    // Validate reCAPTCHA
+    // @ts-ignore
+    const recaptchaResponse = window.grecaptcha?.getResponse();
+    if (!recaptchaResponse) {
+      setFormError('Please complete the CAPTCHA verification');
+      return;
+    }
+    */
+    
     setIsSubmitting(true);
     setFormError('');
     
@@ -58,18 +84,19 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
       // Submit to Firebase
       await submitGuestMessage(newMessage);
       
-      // Update local state with new message
-      const newGuestMessage: GuestMessage = {
-        ...newMessage,
-        date: new Date().toISOString().split('T')[0]
-      };
-      
-      setMessages(prev => [newGuestMessage, ...prev]);
-      setNewMessage({ name: '', relationship: '', message: '' });
+      // Show pending approval message
       setShowSuccess(true);
+      setNewMessage({ name: '', relationship: '', message: '' });
+      
+      // Reset reCAPTCHA
+      // @ts-ignore
+      if (window.grecaptcha) {
+        // @ts-ignore
+        window.grecaptcha.reset();
+      }
       
       // Hide success message after 3 seconds
-      setTimeout(() => setShowSuccess(false), 3000);
+      setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
       console.error('Error submitting message:', error);
       setFormError('An error occurred while submitting your message. Please try again.');
@@ -97,7 +124,7 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
                 
                 {showSuccess && (
                   <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-md">
-                    Thank you for your message! It has been added to our guest book.
+                    Thank you for your message! It has been submitted for review and will appear in our guest book once approved.
                   </div>
                 )}
                 
@@ -155,6 +182,11 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
                       className="w-full p-2 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
                       placeholder="Write your message..."
                     ></textarea>
+                  </div>
+                  
+                  {/* reCAPTCHA - temporarily hidden */}
+                  <div className="mb-6">
+                    <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
                   </div>
                   
                   <button

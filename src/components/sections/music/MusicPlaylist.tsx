@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { submitSongSuggestion, getSongSuggestions, likeSongSuggestion, SongSuggestion } from '@/lib/firebase/music-playlist';
 
+// reCAPTCHA site key
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key
+
 // interface SongSuggestion {
 //   id: string;
 //   title: string;
@@ -59,7 +62,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
     resetOnExit: false
   });
 
-  // Load songs from Firebase when component mounts
+  // Load songs from Firebase and initialize reCAPTCHA when component mounts
   useEffect(() => {
     const loadSongs = async () => {
       try {
@@ -73,6 +76,16 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
     };
 
     loadSongs();
+    
+    // Initialize reCAPTCHA
+    const loadRecaptcha = () => {
+      const script = document.createElement('script');
+      script.src = 'https://www.google.com/recaptcha/api.js';
+      script.async = true;
+      document.body.appendChild(script);
+    };
+    
+    loadRecaptcha();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -89,27 +102,38 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
       return;
     }
     
+    // Temporarily disable reCAPTCHA validation
+    // Uncomment when reCAPTCHA is working properly
+    /*
+    // Validate reCAPTCHA
+    // @ts-ignore
+    const recaptchaResponse = window.grecaptcha?.getResponse();
+    if (!recaptchaResponse) {
+      setFormError('Please complete the CAPTCHA verification');
+      return;
+    }
+    */
+    
     setIsSubmitting(true);
     setFormError('');
     
     try {
       // Submit to Firebase
-      const songId = await submitSongSuggestion(newSuggestion);
+      await submitSongSuggestion(newSuggestion);
       
-      // Update local state with new song
-      const newSong: SongSuggestion = {
-        id: songId,
-        ...newSuggestion,
-        likes: 0,
-        date: new Date().toISOString().split('T')[0]
-      };
-      
-      setSuggestions(prev => [newSong, ...prev]);
-      setNewSuggestion({ title: '', artist: '', suggestedBy: '', reason: '' });
+      // Show pending approval message
       setShowSuccess(true);
+      setNewSuggestion({ title: '', artist: '', suggestedBy: '', reason: '' });
       
-      // Hide success message after 3 seconds
-      setTimeout(() => setShowSuccess(false), 3000);
+      // Reset reCAPTCHA
+      // @ts-ignore
+      if (window.grecaptcha) {
+        // @ts-ignore
+        window.grecaptcha.reset();
+      }
+      
+      // Hide success message after 5 seconds
+      setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
       console.error('Error submitting song:', error);
       setFormError('An error occurred while submitting your song. Please try again.');
@@ -162,7 +186,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                 
                 {showSuccess && (
                   <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-md">
-                    Thank you for your suggestion! It has been added to our playlist.
+                    Thank you for your suggestion! It has been submitted for review and will appear in our playlist once approved.
                   </div>
                 )}
                 
@@ -231,6 +255,11 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                       className="w-full p-2 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
                       placeholder="Tell us why you're suggesting this song"
                     ></textarea>
+                  </div>
+                  
+                  {/* reCAPTCHA - temporarily hidden */}
+                  <div className="mb-6">
+                    <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
                   </div>
                   
                   <button
@@ -304,4 +333,4 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
       </div>
     </section>
   );
-}; 
+};

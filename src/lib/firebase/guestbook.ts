@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, orderBy, limit, Timestamp } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, orderBy, limit, Timestamp, where } from 'firebase/firestore';
 
 // Interface for Guest Book message data
 export interface GuestMessage {
@@ -9,6 +9,7 @@ export interface GuestMessage {
   message: string;
   date?: string;
   timestamp?: Date;
+  isApproved?: boolean;
 }
 
 /**
@@ -16,15 +17,16 @@ export interface GuestMessage {
  */
 export async function submitGuestMessage(data: GuestMessage): Promise<string> {
   try {
-    // Add timestamp
-    const messageWithTimestamp = {
+    // Add timestamp and set as not approved by default
+    const messageWithMetadata = {
       ...data,
       timestamp: Timestamp.now(),
-      date: new Date().toISOString().split('T')[0] // Format as YYYY-MM-DD
+      date: new Date().toISOString().split('T')[0], // Format as YYYY-MM-DD
+      isApproved: false // Messages require approval by default
     };
     
     // Add to Firestore
-    const docRef = await addDoc(collection(db, 'guestbook'), messageWithTimestamp);
+    const docRef = await addDoc(collection(db, 'guestbook'), messageWithMetadata);
     return docRef.id;
   } catch (error) {
     console.error('Error submitting guest message:', error);
@@ -35,11 +37,28 @@ export async function submitGuestMessage(data: GuestMessage): Promise<string> {
 /**
  * Get guest book messages
  */
-export async function getGuestMessages(messageLimit: number = 50): Promise<GuestMessage[]> {
+export async function getGuestMessages(messageLimit: number = 50, onlyApproved: boolean = true): Promise<GuestMessage[]> {
   try {
     // Create query
     const messagesRef = collection(db, 'guestbook');
-    const q = query(messagesRef, orderBy('timestamp', 'desc'), limit(messageLimit));
+    let q;
+    
+    if (onlyApproved) {
+      // Only get approved messages
+      q = query(
+        messagesRef, 
+        where('isApproved', '==', true),
+        orderBy('timestamp', 'desc'), 
+        limit(messageLimit)
+      );
+    } else {
+      // Get all messages (for admin)
+      q = query(
+        messagesRef, 
+        orderBy('timestamp', 'desc'), 
+        limit(messageLimit)
+      );
+    }
     
     // Get messages
     const querySnapshot = await getDocs(q);
@@ -50,7 +69,8 @@ export async function getGuestMessages(messageLimit: number = 50): Promise<Guest
         name: data.name,
         relationship: data.relationship,
         message: data.message,
-        date: data.date
+        date: data.date,
+        isApproved: data.isApproved
       };
     });
   } catch (error) {
