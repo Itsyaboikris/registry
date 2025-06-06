@@ -1,68 +1,86 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
+import { submitSongSuggestion, getSongSuggestions, likeSongSuggestion, SongSuggestion } from '@/lib/firebase/music-playlist';
 
-interface SongSuggestion {
-  id: string;
-  title: string;
-  artist: string;
-  suggestedBy: string;
-  reason: string;
-  likes: number;
-}
+// interface SongSuggestion {
+//   id: string;
+//   title: string;
+//   artist: string;
+//   suggestedBy: string;
+//   reason: string;
+//   likes: number;
+// }
 
 // Sample song suggestions
-const initialSuggestions: SongSuggestion[] = [
-  {
-    id: '1',
-    title: 'Perfect',
-    artist: 'Ed Sheeran',
-    suggestedBy: 'Alex Johnson',
-    reason: 'Beautiful lyrics that capture the essence of your love.',
-    likes: 12
-  },
-  {
-    id: '2',
-    title: 'Can\'t Help Falling in Love',
-    artist: 'Elvis Presley',
-    suggestedBy: 'Maria Garcia',
-    reason: 'A timeless classic that never gets old.',
-    likes: 8
-  },
-  {
-    id: '3',
-    title: 'Thinking Out Loud',
-    artist: 'Ed Sheeran',
-    suggestedBy: 'John Smith',
-    reason: 'Great for the first dance!',
-    likes: 5
-  }
-];
+// const initialSuggestions: SongSuggestion[] = [
+//   {
+//     id: '1',
+//     title: 'Perfect',
+//     artist: 'Ed Sheeran',
+//     suggestedBy: 'Alex Johnson',
+//     reason: 'Beautiful lyrics that capture the essence of your love.',
+//     likes: 12
+//   },
+//   {
+//     id: '2',
+//     title: 'Can\'t Help Falling in Love',
+//     artist: 'Elvis Presley',
+//     suggestedBy: 'Maria Garcia',
+//     reason: 'A timeless classic that never gets old.',
+//     likes: 8
+//   },
+//   {
+//     id: '3',
+//     title: 'Thinking Out Loud',
+//     artist: 'Ed Sheeran',
+//     suggestedBy: 'John Smith',
+//     reason: 'Great for the first dance!',
+//     likes: 5
+//   }
+// ];
 
 interface MusicPlaylistProps {
   isLoaded: boolean;
 }
 
 export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
-  const [suggestions, setSuggestions] = useState<SongSuggestion[]>(initialSuggestions);
+  const [suggestions, setSuggestions] = useState<SongSuggestion[]>([]);
   const [newSuggestion, setNewSuggestion] = useState({ title: '', artist: '', suggestedBy: '', reason: '' });
   const [formError, setFormError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
   
   const { elementRef, isVisible } = useScrollAnimation({
     threshold: 0.1,
     resetOnExit: false
   });
 
+  // Load songs from Firebase when component mounts
+  useEffect(() => {
+    const loadSongs = async () => {
+      try {
+        const fetchedSongs = await getSongSuggestions();
+        setSuggestions(fetchedSongs);
+      } catch (error) {
+        console.error('Error loading songs:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadSongs();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setNewSuggestion(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
@@ -74,35 +92,48 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
     setIsSubmitting(true);
     setFormError('');
     
-    // Simulate API call to save suggestion
-    setTimeout(() => {
-      const suggestion: SongSuggestion = {
-        id: Date.now().toString(),
-        title: newSuggestion.title,
-        artist: newSuggestion.artist,
-        suggestedBy: newSuggestion.suggestedBy,
-        reason: newSuggestion.reason,
-        likes: 0
+    try {
+      // Submit to Firebase
+      const songId = await submitSongSuggestion(newSuggestion);
+      
+      // Update local state with new song
+      const newSong: SongSuggestion = {
+        id: songId,
+        ...newSuggestion,
+        likes: 0,
+        date: new Date().toISOString().split('T')[0]
       };
       
-      setSuggestions(prev => [suggestion, ...prev]);
+      setSuggestions(prev => [newSong, ...prev]);
       setNewSuggestion({ title: '', artist: '', suggestedBy: '', reason: '' });
-      setIsSubmitting(false);
       setShowSuccess(true);
       
       // Hide success message after 3 seconds
       setTimeout(() => setShowSuccess(false), 3000);
-    }, 1000);
+    } catch (error) {
+      console.error('Error submitting song:', error);
+      setFormError('An error occurred while submitting your song. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const handleLike = (id: string) => {
-    setSuggestions(prev => 
-      prev.map(suggestion => 
-        suggestion.id === id 
-          ? { ...suggestion, likes: suggestion.likes + 1 } 
-          : suggestion
-      )
-    );
+  const handleLike = async (id: string) => {
+    try {
+      // Update Firebase
+      await likeSongSuggestion(id);
+      
+      // Update local state
+      setSuggestions(prev => 
+        prev.map(suggestion => 
+          suggestion.id === id 
+            ? { ...suggestion, likes: (suggestion.likes || 0) + 1 } 
+            : suggestion
+        )
+      );
+    } catch (error) {
+      console.error('Error liking song:', error);
+    }
   };
 
   const filteredSuggestions = searchTerm
@@ -230,7 +261,11 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                 </div>
                 
                 <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
-                  {filteredSuggestions.length === 0 ? (
+                  {isLoading ? (
+                    <div className="flex justify-center items-center h-40">
+                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  ) : filteredSuggestions.length === 0 ? (
                     <p className="text-center text-foreground/60 italic">
                       {searchTerm ? 'No songs match your search' : 'Be the first to suggest a song!'}
                     </p>
@@ -251,7 +286,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                             )}
                           </div>
                           <button
-                            onClick={() => handleLike(suggestion.id)}
+                            onClick={() => handleLike(suggestion.id!)}
                             className="flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
                           >
                             <span className="mr-1 text-lg">♥</span>

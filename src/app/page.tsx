@@ -9,7 +9,7 @@ import { Gallery } from '@/components/sections/gallery/Gallery';
 import { EngagementStory } from '@/components/sections/story/EngagementStory';
 import { FAQ } from '@/components/sections/faq/FAQ';
 import { MusicPlaylist } from '@/components/sections/music/MusicPlaylist';
-import { GuestBook } from '@/components/sections/guestbook/GuestBook';
+import { GuestBookWithFirebase } from '@/components/sections/guestbook/GuestBookWithFirebase';
 import { RSVP } from '@/components/sections/rsvp/RSVP';
 import { ParticlesBackground } from '@/components/animations/ParticlesBackground';
 
@@ -50,7 +50,7 @@ export default function Home() {
       <MusicPlaylist isLoaded={isLoaded} />
       
       {/* Guest Book */}
-      <GuestBook isLoaded={isLoaded} />
+      <GuestBookWithFirebase isLoaded={isLoaded} />
       
       {/* RSVP Section */}
       <RSVP isLoaded={isLoaded} />
