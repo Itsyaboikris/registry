@@ -1,26 +1,436 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+    --radius: 0.625rem;
+    --background: #faf7f2;
+    --foreground: #3c3c3c;
+    --card: #ffffff;
+    --card-foreground: #3c3c3c;
+    --popover: #ffffff;
+    --popover-foreground: #3c3c3c;
+    --primary: #d4b78f;
+    --primary-foreground: #ffffff;
+    --secondary: #f8f0e5;
+    --secondary-foreground: #3c3c3c;
+    --muted: #f8f0e5;
+    --muted-foreground: #8a8582;
+    --accent: #e8d7c1;
+    --accent-foreground: #3c3c3c;
+    --destructive: #ef4444;
+    --border: #e8d7c1;
+    --input: #e8d7c1;
+    --ring: #d4b78f;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+@layer base {
+    * {
+        @apply border-border;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Custom animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@keyframes slideUp {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes floatIn {
+    0% {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 1s ease forwards;
+}
+
+.animate-slide-up {
+    animation: slideUp 1s ease forwards;
+}
+
+.animate-float-in {
+    animation: floatIn 1.2s ease forwards;
+}
+
+.animate-rotate {
+    animation: rotate 20s linear infinite;
+}
+
+.animate-pulse {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+.delay-100 {
+    animation-delay: 100ms;
+}
+.delay-200 {
+    animation-delay: 200ms;
+}
+.delay-300 {
+    animation-delay: 300ms;
+}
+.delay-400 {
+    animation-delay: 400ms;
+}
+.delay-500 {
+    animation-delay: 500ms;
+}
+
+/* Gold text effect */
+.gold-text {
+    background: linear-gradient(
+        to right,
+        #bf953f,
+        #fcf6ba,
+        #b38728,
+        #fbf5b7,
+        #aa771c
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0px 0px 1px rgba(0, 0, 0, 0.1);
+}
+
+/* Parallax effect */
+.parallax-container {
+    height: 100vh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    perspective: 1px;
+}
+
+.parallax-layer {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.parallax-layer-back {
+    transform: translateZ(-1px) scale(2);
+}
+
+.parallax-layer-base {
+    transform: translateZ(0);
+}
+
+/* Timeline styles */
+.timeline {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.timeline::after {
+    content: "";
+    position: absolute;
+    width: 6px;
+    background-color: var(--primary);
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -3px;
+}
+
+.timeline-container {
+    padding: 10px 40px;
+    position: relative;
+    background-color: inherit;
+    width: 50%;
+}
+
+.timeline-container::after {
+    content: "";
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    right: -12px;
+    background-color: white;
+    border: 4px solid var(--primary);
+    top: 15px;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.timeline-left {
+    left: 0;
+}
+
+.timeline-right {
+    left: 50%;
+}
+
+.timeline-left::before {
+    content: " ";
+    height: 0;
+    position: absolute;
+    top: 22px;
+    width: 0;
+    z-index: 1;
+    right: 30px;
+    border: medium solid var(--border);
+    border-width: 10px 0 10px 10px;
+    border-color: transparent transparent transparent var(--border);
+}
+
+.timeline-right::before {
+    content: " ";
+    height: 0;
+    position: absolute;
+    top: 22px;
+    width: 0;
+    z-index: 1;
+    left: 30px;
+    border: medium solid var(--border);
+    border-width: 10px 10px 10px 0;
+    border-color: transparent var(--border) transparent transparent;
+}
+
+.timeline-right::after {
+    left: -12px;
+}
+
+.timeline-content {
+    padding: 20px 30px;
+    background-color: white;
+    position: relative;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timeline-content:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Photo frame styles */
+.photo-frame {
+    position: relative;
+    padding: 15px;
+    background-color: white;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transform: rotate(-2deg);
+    transition: transform 0.3s ease;
+}
+
+.photo-frame:hover {
+    transform: rotate(0deg) scale(1.02);
+}
+
+.photo-frame::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 1px solid var(--border);
+    z-index: 1;
+}
+
+.photo-polaroid {
+    position: relative;
+    padding: 10px 10px 40px 10px;
+    background-color: white;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.photo-polaroid::after {
+    content: attr(data-caption);
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font-cormorant), serif;
+    font-style: italic;
+}
+
+/* Responsive styles */
+.hover-effect:hover {
+    color: var(--primary);
+}
+
+/* Mobile menu */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: 100vh;
+    background-color: var(--background);
+    z-index: 100;
+    transition: right 0.3s ease;
+    padding: 2rem;
+    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-menu.open {
+    right: 0;
+}
+
+.mobile-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 99;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.mobile-menu-overlay.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Media queries */
+@media (min-width: 768px) {
+    .md\:flex {
+        display: flex !important;
+    }
+
+    .md\:hidden {
+        display: none !important;
+    }
+
+    .md\:flex-row {
+        flex-direction: row !important;
+    }
+
+    .md\:flex-row-reverse {
+        flex-direction: row-reverse !important;
+    }
+
+    .md\:text-left {
+        text-align: left !important;
+    }
+
+    .md\:ml-8 {
+        margin-left: 2rem !important;
+    }
+
+    .md\:mr-8 {
+        margin-right: 2rem !important;
+    }
+}
+
+@media (max-width: 767px) {
+    .timeline::after {
+        left: 31px;
+    }
+
+    .timeline-container {
+        width: 100%;
+        padding-left: 70px;
+        padding-right: 25px;
+    }
+
+    .timeline-container::before {
+        left: 60px;
+        border: medium solid var(--border);
+        border-width: 10px 10px 10px 0;
+        border-color: transparent var(--border) transparent transparent;
+    }
+
+    .timeline-left::after,
+    .timeline-right::after {
+        left: 19px;
+    }
+
+    .timeline-right {
+        left: 0%;
+    }
+
+    .timeline-event {
+        width: 100% !important;
+        padding-left: 70px !important;
+        padding-right: 25px !important;
+    }
+
+    .timeline-event-left {
+        left: 0 !important;
+    }
+
+    .timeline-event-right {
+        left: 0 !important;
+    }
+
+    .timeline-dot {
+        left: 19px !important;
+        right: auto !important;
+    }
+
+    .wedding-details-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+        padding: 0 1rem !important;
+    }
+
+    /* Timeline mobile styles */
+    .timeline-center-line {
+        left: 31px !important;
+    }
+
+    .timeline-dot {
+        left: 19px !important;
+        right: auto !important;
+    }
+
+    .timeline-content {
+        margin-left: 40px !important;
+    }
 }

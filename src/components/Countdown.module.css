@@ -1,0 +1,46 @@
+.container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 80px;
+}
+
+.number {
+    font-size: 3rem;
+    font-family: var(--font-playfair), serif;
+    color: #d4b78f;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.label {
+    font-size: 1rem;
+    font-family: var(--font-cormorant), serif;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 767px) {
+    .container {
+        gap: 1rem;
+    }
+
+    .item {
+        min-width: 60px;
+    }
+
+    .number {
+        font-size: 2rem;
+    }
+
+    .label {
+        font-size: 0.875rem;
+    }
+}

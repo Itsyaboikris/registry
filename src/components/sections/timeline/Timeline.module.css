@@ -1,0 +1,131 @@
+.timelineSection {
+    padding: 5rem 0;
+    background-color: #f8f0e5;
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+.container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.title {
+    font-family: var(--font-playfair), serif;
+    font-size: 2.25rem;
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.subtitle {
+    font-family: var(--font-cormorant), serif;
+    font-size: 1.25rem;
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 4rem auto;
+}
+
+.timelineContainer {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.timelineLine {
+    position: absolute;
+    width: 6px;
+    background-color: #d4b78f;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    margin-left: -3px;
+}
+
+.timelineEvent {
+    padding: 10px 40px;
+    position: relative;
+    background-color: transparent;
+    width: 50%;
+    margin-bottom: 2rem;
+}
+
+.timelineEventleft {
+    left: 0;
+}
+
+.timelineEventright {
+    left: 50%;
+}
+
+.timelineDot {
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background-color: white;
+    border: 4px solid #d4b78f;
+    top: 15px;
+    border-radius: 50%;
+    z-index: 1;
+}
+
+.timelineEventleft .timelineDot {
+    right: -12px;
+}
+
+.timelineEventright .timelineDot {
+    left: -12px;
+}
+
+.timelineContent {
+    padding: 20px 30px;
+    background-color: white;
+    position: relative;
+    border-radius: 0.625rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.timelineContent:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.eventTitle {
+    font-family: var(--font-playfair), serif;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #d4b78f;
+}
+
+.eventDescription {
+    font-family: var(--font-cormorant), serif;
+    font-size: 1.125rem;
+}
+
+@media (max-width: 767px) {
+    .timelineLine {
+        left: 31px;
+    }
+
+    .timelineEvent {
+        width: 100%;
+        padding-left: 70px;
+        padding-right: 25px;
+    }
+
+    .timelineEventleft,
+    .timelineEventright {
+        left: 0;
+    }
+
+    .timelineDot {
+        left: 19px;
+        right: auto;
+    }
+
+    .timelineContent {
+        margin-left: 40px;
+    }
+}
