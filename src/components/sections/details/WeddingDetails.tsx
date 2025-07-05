@@ -56,7 +56,9 @@ export const WeddingDetails: React.FC<WeddingDetailsProps> = ({ isLoaded }) => {
                   <div>
                     <h4 className="font-playfair text-xl mb-2">Date & Time</h4>
                     <p className="font-cormorant text-lg text-foreground/80">
-                      Please arrive NO later than 15 minutes before the ceremony
+                      October 31, 2025<br />
+                      Ceremony begins at 2:30 PM<br />
+                      <span className="text-sm italic">Please arrive by 2:15 PM</span>
                     </p>
                   </div>
                 </div>

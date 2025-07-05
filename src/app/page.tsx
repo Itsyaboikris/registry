@@ -51,7 +51,7 @@ export default function Home() {
       
       {/* Guest Book */}
       <GuestBookWithFirebase isLoaded={isLoaded} />
-      
+
       {/* RSVP Section */}
       <RSVP isLoaded={isLoaded} />
     </main>

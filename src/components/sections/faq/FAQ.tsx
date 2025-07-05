@@ -10,18 +10,18 @@ interface FAQItem {
 
 const faqItems: FAQItem[] = [
   {
-    question: "When do I RSVP by?",
-    answer: "Please RSVP by clicking the RSVP tab above.",
+    question: "When do I need to RSVP by?",
+    answer: "Please RSVP by September 30th, 2025. You can RSVP by clicking the RSVP tab above or visiting our RSVP page.",
     category: 'general'
   },
   {
     question: "What if I can't make it?",
-    answer: "Your presence will surely be missed. Please RSVP 'Will NOT attend'. If you have already RSVP'd attending, but find that you will not make it, please notify us.",
+    answer: "Your presence will surely be missed. Please RSVP 'Will NOT attend' so we can plan accordingly. If you have already RSVP'd attending but find that you cannot make it, please notify us as soon as possible.",
     category: 'general'
   },
   {
     question: "What time is the wedding?",
-    answer: "Please arrive at the venue NO later than 15 minutes before the ceremony; if you arrive after the ceremony you will not be able to be seated.",
+    answer: "The ceremony begins at 2:30 PM. Please arrive at the venue NO later than 2:15 PM; if you arrive after the ceremony begins, you will not be able to be seated.",
     category: 'general'
   },
   {
@@ -31,18 +31,28 @@ const faqItems: FAQItem[] = [
   },
   {
     question: "What should I wear?",
-    answer: "Semi-formal *please no jeans/denim pants",
+    answer: "Semi-formal attire is requested. Please no jeans or denim pants.",
     category: 'general'
   },
   {
-    question: "Can I wear white, ivory or cream colour attire?",
-    answer: "No, let the bride have her day!",
+    question: "Can I wear white, ivory or cream colored attire?",
+    answer: "No, please let the bride have her day! We kindly ask that guests avoid wearing white, ivory, or cream colored clothing.",
     category: 'general'
   },
   {
     question: "Where is the wedding?",
-    answer: "Corner Ragbir and, Mc Lean Street, St. Augustine, Trinidad and Tobago",
+    answer: "The wedding will be held at Hilstein Manor, located at Corner Ragbir and McLean Street, St. Augustine, Trinidad and Tobago.",
     category: 'venue'
+  },
+  {
+    question: "Is there parking available?",
+    answer: "Yes, there is parking available at the venue. Security will direct you where to park upon arrival.",
+    category: 'venue'
+  },
+  {
+    question: "What if I have dietary restrictions?",
+    answer: "Please include any dietary restrictions or allergies when you RSVP. We want to ensure everyone can enjoy the meal.",
+    category: 'general'
   }
 ];
 
