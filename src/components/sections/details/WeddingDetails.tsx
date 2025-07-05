@@ -33,11 +33,25 @@ export const WeddingDetails: React.FC<WeddingDetailsProps> = ({ isLoaded }) => {
                 <h3 className="text-3xl font-playfair mb-6 text-primary">Venue</h3>
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-playfair text-xl mb-2">Location</h4>
-                    <p className="font-cormorant text-lg text-foreground/80">
-                      Corner Ragbir and, Mc Lean Street<br />
-                      St. Augustine, Trinidad and Tobago
-                    </p>
+                    <h4 className="font-playfair text-xl mb-2">Hilstein Manor</h4>
+                    <a 
+                      href="https://maps.app.goo.gl/k23xFss2xsn8Bboe6" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="font-cormorant text-lg text-primary hover:text-primary/80 transition-colors flex items-center gap-2 group"
+                    >
+                      <span>Corner Ragbir and, Mc Lean Street<br />
+                      St. Augustine, Trinidad and Tobago</span>
+                      <svg 
+                        className="w-5 h-5 group-hover:translate-x-1 transition-transform" 
+                        fill="none" 
+                        stroke="currentColor" 
+                        viewBox="0 0 24 24"
+                      >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </a>
+                    <p className="text-sm text-foreground/60 mt-2">Click to open in Google Maps</p>
                   </div>
                   <div>
                     <h4 className="font-playfair text-xl mb-2">Date & Time</h4>
