@@ -25,7 +25,7 @@ export const RSVP: React.FC<RSVPProps> = ({ isLoaded }) => {
           </h2>
           <p className={`text-xl font-cormorant mb-12 text-foreground/80 ${isVisible ? 'animate-slide-up delay-200' : ''}`}>
             We would be honored to have you celebrate this momentous occasion with us.
-            Please respond by December 1st, 2025.
+            Please respond by September 30th, 2025.
           </p>
           <div className={`flex flex-col sm:flex-row gap-6 justify-center ${isVisible ? 'animate-slide-up delay-300' : ''}`}>
             <Link 

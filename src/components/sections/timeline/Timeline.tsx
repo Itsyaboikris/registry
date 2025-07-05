@@ -29,9 +29,9 @@ const timelineEvents: TimelineEvent[] = [
   },
   {
     date: "3:45 PM",
-    title: "Cocktail Hour",
+    title: "Mocktail Hour",
     location: "Venue",
-    description: "Join us for drinks and appetizers as we celebrate our new beginning."
+    description: "Enjoy refreshing mocktails and light refreshments."
   },
   {
     date: "4:45 PM",

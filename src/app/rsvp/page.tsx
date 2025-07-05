@@ -76,139 +76,155 @@ export default function RSVP() {
     setIsSubmitting(false);
   };
   
+  if (submitSuccess) {
+    return (
+      <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-white p-8 rounded-lg shadow-lg text-center">
+          <div className="text-6xl mb-4">🎉</div>
+          <h1 className="text-3xl font-playfair mb-4 text-primary">Thank You!</h1>
+          <p className="text-lg font-cormorant mb-6">
+            Your RSVP has been submitted successfully. We can't wait to celebrate with you!
+          </p>
+          <p className="text-sm text-foreground/60">
+            Please respond by September 30th, 2025
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#faf7f2] p-4">
-      <Card className="max-w-md w-full p-8 shadow-lg border-primary/20">
-        <h1 className="font-playfair text-3xl text-center mb-6">RSVP</h1>
-        
-        {submitSuccess ? (
-          <div className="text-center space-y-6">
-            <div className="p-4 bg-green-50 text-green-800 rounded-md">
-              Thank you for your RSVP! We've received your response and look forward to celebrating with you.
-            </div>
-            <Link href="/" className="text-primary hover:underline font-cormorant inline-block">
-              Return to Invitation
-            </Link>
+    <div className="min-h-screen bg-[#faf7f2] py-20">
+      <div className="container mx-auto px-4">
+        <div className="max-w-2xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-5xl font-playfair mb-4 gold-text">RSVP</h1>
+            <p className="text-xl font-cormorant text-foreground/80">
+              Please respond by September 30th, 2025
+            </p>
           </div>
-        ) : (
-          <>
+          
+          <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10">
             {submitError && (
               <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-md">
                 {submitError}
               </div>
             )}
             
-            <form className="space-y-6" onSubmit={handleSubmit}>
-              <div className="space-y-2">
-                <label className="font-cormorant text-lg block">Full Name</label>
-                <input 
-                  type="text" 
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-1">
+                  Your Name *
+                </label>
+                <input
+                  type="text"
+                  id="name"
                   name="name"
                   value={formData.name}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
                   placeholder="Enter your full name"
+                  required
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="font-cormorant text-lg block">Email</label>
-                <input 
-                  type="email" 
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-foreground/80 mb-1">
+                  Email Address *
+                </label>
+                <input
+                  type="email"
+                  id="email"
                   name="email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your email"
+                  className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                  placeholder="Enter your email address"
+                  required
                 />
               </div>
               
-              <div className="space-y-2">
-                <label className="font-cormorant text-lg block">Number of Guests</label>
-                <select 
-                  name="guestCount"
-                  value={formData.guestCount}
+              <div>
+                <label htmlFor="attending" className="block text-sm font-medium text-foreground/80 mb-1">
+                  Will you be attending? *
+                </label>
+                <select
+                  id="attending"
+                  name="attending"
+                  value={formData.attending}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                  required
                 >
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                  <option value="3">3</option>
-                  <option value="4">4</option>
+                  <option value="yes">Yes, I will attend</option>
+                  <option value="no">No, I cannot attend</option>
                 </select>
               </div>
               
-              <div className="space-y-2">
-                <label className="font-cormorant text-lg block">Attending</label>
-                <div className="flex space-x-4">
-                  <label className="flex items-center">
-                    <input 
-                      type="radio" 
-                      name="attending" 
-                      value="yes" 
-                      checked={formData.attending === "yes"}
+              {formData.attending === "yes" && (
+                <>
+                  <div>
+                    <label htmlFor="guestCount" className="block text-sm font-medium text-foreground/80 mb-1">
+                      Number of Guests *
+                    </label>
+                    <select
+                      id="guestCount"
+                      name="guestCount"
+                      value={formData.guestCount}
                       onChange={handleInputChange}
-                      className="mr-2" 
-                    />
-                    <span>Yes</span>
-                  </label>
-                  <label className="flex items-center">
-                    <input 
-                      type="radio" 
-                      name="attending" 
-                      value="no" 
-                      checked={formData.attending === "no"}
+                      className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    >
+                      <option value="1">1 Guest</option>
+                      <option value="2">2 Guests</option>
+                      <option value="3">3 Guests</option>
+                      <option value="4">4 Guests</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="dietaryRestrictions" className="block text-sm font-medium text-foreground/80 mb-1">
+                      Dietary Restrictions
+                    </label>
+                    <input
+                      type="text"
+                      id="dietaryRestrictions"
+                      name="dietaryRestrictions"
+                      value={formData.dietaryRestrictions}
                       onChange={handleInputChange}
-                      className="mr-2" 
+                      className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="Any dietary restrictions or allergies?"
                     />
-                    <span>No</span>
-                  </label>
-                </div>
-              </div>
+                  </div>
+                </>
+              )}
               
-              <div className="space-y-2">
-                <label className="font-cormorant text-lg block">Dietary Restrictions</label>
-                <textarea 
-                  name="dietaryRestrictions"
-                  value={formData.dietaryRestrictions}
-                  onChange={handleInputChange}
-                  className="w-full p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  rows={3}
-                  placeholder="Please list any dietary restrictions"
-                ></textarea>
-              </div>
-              
-              <div className="space-y-2">
-                <label className="font-cormorant text-lg block">Message (Optional)</label>
-                <textarea 
+              <div>
+                <label htmlFor="message" className="block text-sm font-medium text-foreground/80 mb-1">
+                  Message (Optional)
+                </label>
+                <textarea
+                  id="message"
                   name="message"
+                  rows={4}
                   value={formData.message}
                   onChange={handleInputChange}
-                  className="w-full p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  rows={3}
-                  placeholder="Any additional message for the couple"
+                  className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                  placeholder="Any additional message for the couple?"
                 ></textarea>
               </div>
               
-              <div className="pt-4">
-                <Button 
-                  type="submit"
-                  className="w-full bg-primary hover:bg-primary/90 text-white"
-                  disabled={isSubmitting}
-                >
-                  {isSubmitting ? "Submitting..." : "Submit RSVP"}
-                </Button>
-              </div>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full px-6 py-4 bg-primary text-white font-cormorant text-xl uppercase tracking-wider rounded-md hover:bg-primary/90 transition-all duration-300 disabled:bg-primary/50"
+              >
+                {isSubmitting ? 'Submitting...' : 'Submit RSVP'}
+              </button>
             </form>
-            
-            <div className="mt-6 text-center">
-              <Link href="/" className="text-primary hover:underline font-cormorant">
-                Back to Invitation
-              </Link>
-            </div>
-          </>
-        )}
-      </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
