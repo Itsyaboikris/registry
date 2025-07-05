@@ -126,20 +126,23 @@ export const Gallery: React.FC<GalleryProps> = ({ isLoaded }) => {
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={closeModal}
         >
-          <div className="relative max-w-4xl max-h-full">
+          <div className="relative w-full h-full flex items-center justify-center">
             <button
               onClick={closeModal}
-              className="absolute -top-12 right-0 text-white text-4xl hover:text-primary transition-colors"
+              className="absolute top-4 right-4 text-white text-4xl hover:text-primary transition-colors z-10 bg-black/50 rounded-full w-12 h-12 flex items-center justify-center"
             >
               ×
             </button>
-            <Image
-              src={selectedPhoto.src}
-              alt={selectedPhoto.alt}
-              width={selectedPhoto.width}
-              height={selectedPhoto.height}
-              className="max-w-full max-h-full object-contain"
-            />
+            <div className="relative w-full h-full flex items-center justify-center">
+              <Image
+                src={selectedPhoto.src}
+                alt={selectedPhoto.alt}
+                fill
+                className="object-contain"
+                sizes="100vw"
+                priority
+              />
+            </div>
           </div>
         </div>
       )}
