@@ -50,10 +50,10 @@ export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
             Are Getting Married
           </p>
           <p className={`text-2xl font-cormorant mb-12 text-white/80 ${isVisible ? 'animate-slide-up delay-300' : ''}`}>
-            June 15, 2025 • St. Augustine, Trinidad and Tobago
+            October 25, 2025 • St. Augustine, Trinidad and Tobago
           </p>
           <div className={`mb-12 ${isVisible ? 'animate-slide-up delay-400' : ''}`}>
-            <Countdown targetDate="2025-06-15T00:00:00" />
+            <Countdown targetDate="2025-10-25T00:00:00" />
           </div>
           <Link 
             href="/rsvp" 
