@@ -10,13 +10,10 @@ interface HeroProps {
 
 export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
   const [isVisible, setIsVisible] = useState(false);
-  const [backgroundImage, setBackgroundImage] = useState<string>('');
 
   useEffect(() => {
     if (isLoaded) {
       setIsVisible(true);
-      // Load a random elegant wedding image from Unsplash
-      setBackgroundImage('https://images.unsplash.com/photo-1519741497674-611481863552');
     }
   }, [isLoaded]);
 
@@ -26,7 +23,7 @@ export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
       <div 
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+          backgroundImage: `url('/images/couple/the_couple.jpeg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -53,7 +50,7 @@ export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
             Are Getting Married
           </p>
           <p className={`text-2xl font-cormorant mb-12 text-white/80 ${isVisible ? 'animate-slide-up delay-300' : ''}`}>
-            June 15, 2025 • New York City
+            June 15, 2025 • St. Augustine, Trinidad and Tobago
           </p>
           <div className={`mb-12 ${isVisible ? 'animate-slide-up delay-400' : ''}`}>
             <Countdown targetDate="2025-06-15T00:00:00" />

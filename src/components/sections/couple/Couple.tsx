@@ -43,7 +43,7 @@ export const Couple: React.FC<CoupleProps> = ({ isLoaded }) => {
             className={`relative w-full aspect-[16/9] mb-20 overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-1000 ${isMainPhotoVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
           >
             <Image
-              src="https://images.unsplash.com/photo-1519741497674-611481863552"
+              src="/images/couple/the_couple.jpeg"
               alt="Kristi & Joshua"
               fill
               className="object-cover"
@@ -67,11 +67,11 @@ export const Couple: React.FC<CoupleProps> = ({ isLoaded }) => {
             ref={photosRef} 
             className={`grid grid-cols-1 md:grid-cols-2 gap-12 items-center transform transition-all duration-1000 ${isPhotosVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
           >
-            {/* First Photo */}
+            {/* Bride Photo */}
             <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-xl group">
               <Image
-                src="https://images.unsplash.com/photo-1519741497674-611481863552"
-                alt="Bride"
+                src="/images/couple/the_bride.jpeg"
+                alt="Kristi - The Bride"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -83,11 +83,11 @@ export const Couple: React.FC<CoupleProps> = ({ isLoaded }) => {
               </div>
             </div>
 
-            {/* Second Photo */}
+            {/* Groom Photo */}
             <div className="relative aspect-[3/4] overflow-hidden rounded-lg shadow-xl group">
               <Image
-                src="https://images.unsplash.com/photo-1519741497674-611481863552"
-                alt="Groom"
+                src="/images/couple/the_groom.jpeg"
+                alt="Joshua - The Groom"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -106,9 +106,9 @@ export const Couple: React.FC<CoupleProps> = ({ isLoaded }) => {
             className={`mt-16 text-center max-w-3xl mx-auto transform transition-all duration-1000 ${isStoryVisible ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}
           >
             <p className="text-xl font-cormorant text-foreground/80 leading-relaxed">
-              Our love story began on a beautiful summer evening in 2020. 
-              What started as a chance encounter blossomed into a beautiful journey of love, 
-              laughter, and countless memories. We're excited to begin this new chapter of our lives together.
+              Our love story began at church camp in February 2020. What started as a great friendship 
+              blossomed into a beautiful journey of love, laughter, and countless memories. 
+              We're excited to begin this new chapter of our lives together.
             </p>
           </div>
         </div>

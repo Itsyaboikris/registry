@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 
 interface Photo {
   src: string;
@@ -11,43 +10,49 @@ interface Photo {
   height: number;
 }
 
-// Sample gallery photos - replace with your actual photos
+// Gallery photos - using your actual photos
 const galleryPhotos: Photo[] = [
   {
-    src: "https://images.unsplash.com/photo-1519741497674-611481863552",
-    alt: "Couple at sunset",
+    src: "/images/gallery/gallery_1.jpeg",
+    alt: "Kristi & Joshua - Beautiful moments together",
     width: 1200,
     height: 800
   },
   {
-    src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc",
-    alt: "Engagement photo",
+    src: "/images/gallery/gallery_2.jpeg",
+    alt: "Kristi & Joshua - Special memories",
     width: 800,
     height: 1200
   },
   {
-    src: "https://images.unsplash.com/photo-1529636798458-92182e662485",
-    alt: "Romantic dinner",
+    src: "/images/gallery/gallery_3.jpeg",
+    alt: "Kristi & Joshua - Love and laughter",
     width: 1200,
     height: 800
   },
   {
-    src: "https://images.unsplash.com/photo-1439539698758-ba2680ecadb9",
-    alt: "First date",
+    src: "/images/gallery/gallery_4.jpeg",
+    alt: "Kristi & Joshua - Precious moments",
     width: 800,
     height: 1000
   },
   {
-    src: "https://images.unsplash.com/photo-1520854221256-17451cc331bf",
-    alt: "Wedding planning",
+    src: "/images/gallery/gallery_5.jpeg",
+    alt: "Kristi & Joshua - Together forever",
     width: 1200,
     height: 900
   },
   {
-    src: "https://images.unsplash.com/photo-1522673607200-164d1b3ce551",
-    alt: "Proposal moment",
+    src: "/images/gallery/gallery_6_proposal_1.png",
+    alt: "The Proposal - A magical moment",
     width: 900,
     height: 1200
+  },
+  {
+    src: "/images/gallery/gallery_7_proposal_2.jpeg",
+    alt: "The Proposal - Forever begins",
+    width: 1200,
+    height: 800
   }
 ];
 
@@ -56,92 +61,88 @@ interface GalleryProps {
 }
 
 export const Gallery: React.FC<GalleryProps> = ({ isLoaded }) => {
+  const [isVisible, setIsVisible] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
-  const { elementRef, isVisible } = useScrollAnimation({
-    threshold: 0.1,
-    resetOnExit: false
-  });
 
-  // Close lightbox with escape key
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && selectedPhoto) {
-        setSelectedPhoto(null);
-      }
-    };
+    if (isLoaded) {
+      setIsVisible(true);
+    }
+  }, [isLoaded]);
 
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedPhoto]);
+  const openModal = (photo: Photo) => {
+    setSelectedPhoto(photo);
+  };
+
+  const closeModal = () => {
+    setSelectedPhoto(null);
+  };
 
   return (
-    <section className="py-20 bg-secondary/5">
+    <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div ref={elementRef} className="max-w-6xl mx-auto">
-          <h2 className={`text-5xl font-playfair text-center mb-4 gold-text transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Our Gallery
-          </h2>
-          <p className={`text-xl font-cormorant text-center mb-12 text-foreground/80 transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            A collection of our favorite moments together
-          </p>
+        <div className="max-w-6xl mx-auto">
+          <div className={`text-center mb-16 transition-all duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <h2 className="text-5xl font-playfair mb-4 gold-text">Photo Gallery</h2>
+            <p className="text-xl font-cormorant text-foreground/80">
+              Our journey together in pictures
+            </p>
+          </div>
           
-          {/* Masonry Gallery */}
-          <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 transition-all duration-1000 delay-200 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 transition-all duration-700 delay-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
             {galleryPhotos.map((photo, index) => (
-              <div 
-                key={index} 
-                className={`cursor-pointer overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 ${
-                  photo.height > photo.width ? 'row-span-2' : ''
-                }`}
-                onClick={() => setSelectedPhoto(photo)}
-                style={{
-                  transitionDelay: `${200 + index * 100}ms`
-                }}
+              <div
+                key={index}
+                className="relative aspect-[4/5] overflow-hidden rounded-lg shadow-lg cursor-pointer group transform transition-all duration-300 hover:scale-105"
+                onClick={() => openModal(photo)}
               >
-                <div className="relative aspect-square w-full overflow-hidden">
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    className="object-cover hover:scale-105 transition-transform duration-500"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  />
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300" />
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <div className="text-white text-center">
+                    <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7" />
+                      </svg>
+                    </div>
+                    <p className="font-cormorant text-sm">Click to enlarge</p>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-          
-          {/* Lightbox */}
-          {selectedPhoto && (
-            <div 
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-              onClick={() => setSelectedPhoto(null)}
-            >
-              <div className="relative max-w-6xl max-h-[90vh] w-full">
-                <div className="relative h-full w-full">
-                  <Image
-                    src={selectedPhoto.src}
-                    alt={selectedPhoto.alt}
-                    fill
-                    className="object-contain"
-                    sizes="100vw"
-                  />
-                </div>
-                <button 
-                  className="absolute top-4 right-4 text-white text-3xl font-bold"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedPhoto(null);
-                  }}
-                >
-                  &times;
-                </button>
-                <p className="text-white text-center mt-4">{selectedPhoto.alt}</p>
-              </div>
-            </div>
-          )}
         </div>
       </div>
+
+      {/* Modal */}
+      {selectedPhoto && (
+        <div 
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={closeModal}
+        >
+          <div className="relative max-w-4xl max-h-full">
+            <button
+              onClick={closeModal}
+              className="absolute -top-12 right-0 text-white text-4xl hover:text-primary transition-colors"
+            >
+              ×
+            </button>
+            <Image
+              src={selectedPhoto.src}
+              alt={selectedPhoto.alt}
+              width={selectedPhoto.width}
+              height={selectedPhoto.height}
+              className="max-w-full max-h-full object-contain"
+            />
+          </div>
+        </div>
+      )}
     </section>
   );
 }; 
