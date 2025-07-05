@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { submitSongSuggestion, getSongSuggestions, likeSongSuggestion, SongSuggestion } from '@/lib/firebase/music-playlist';
 
-// reCAPTCHA site key
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key
+// reCAPTCHA site key - must be set in environment variables
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 // interface SongSuggestion {
 //   id: string;
@@ -77,15 +77,17 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
 
     loadSongs();
     
-    // Initialize reCAPTCHA
-    const loadRecaptcha = () => {
-      const script = document.createElement('script');
-      script.src = 'https://www.google.com/recaptcha/api.js';
-      script.async = true;
-      document.body.appendChild(script);
-    };
-    
-    loadRecaptcha();
+    // Initialize reCAPTCHA only if site key is available
+    if (RECAPTCHA_SITE_KEY) {
+      const loadRecaptcha = () => {
+        const script = document.createElement('script');
+        script.src = 'https://www.google.com/recaptcha/api.js';
+        script.async = true;
+        document.body.appendChild(script);
+      };
+      
+      loadRecaptcha();
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -102,17 +104,15 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
       return;
     }
     
-    // Temporarily disable reCAPTCHA validation
-    // Uncomment when reCAPTCHA is working properly
-    /*
-    // Validate reCAPTCHA
-    // @ts-ignore
-    const recaptchaResponse = window.grecaptcha?.getResponse();
-    if (!recaptchaResponse) {
-      setFormError('Please complete the CAPTCHA verification');
-      return;
+    // Validate reCAPTCHA if enabled
+    if (RECAPTCHA_SITE_KEY) {
+      // @ts-ignore
+      const recaptchaResponse = window.grecaptcha?.getResponse();
+      if (!recaptchaResponse) {
+        setFormError('Please complete the CAPTCHA verification');
+        return;
+      }
     }
-    */
     
     setIsSubmitting(true);
     setFormError('');
@@ -126,8 +126,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
       setNewSuggestion({ title: '', artist: '', suggestedBy: '', reason: '' });
       
       // Reset reCAPTCHA
-      // @ts-ignore
-      if (window.grecaptcha) {
+      if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
         // @ts-ignore
         window.grecaptcha.reset();
       }
@@ -168,14 +167,14 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
     : suggestions;
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-[#faf7f2]">
       <div className="container mx-auto px-4">
         <div ref={elementRef} className="max-w-6xl mx-auto">
           <h2 className={`text-5xl font-playfair text-center mb-4 gold-text transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
             Music Playlist
           </h2>
           <p className={`text-xl font-cormorant text-center mb-12 text-foreground/80 transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Help us create the perfect soundtrack for our celebration
+            Help us create the perfect playlist for our special day
           </p>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -186,7 +185,7 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                 
                 {showSuccess && (
                   <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-md">
-                    Thank you for your suggestion! It has been submitted for review and will appear in our playlist once approved.
+                    Thank you for your song suggestion! It has been submitted for review and will appear in our playlist once approved.
                   </div>
                 )}
                 
@@ -257,17 +256,19 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                     ></textarea>
                   </div>
                   
-                  {/* reCAPTCHA - temporarily hidden */}
-                  <div className="mb-6">
-                    <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
-                  </div>
+                  {/* reCAPTCHA - only show if site key is available */}
+                  {RECAPTCHA_SITE_KEY && (
+                    <div className="mb-6">
+                      <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
+                    </div>
+                  )}
                   
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full px-4 py-3 bg-primary text-white font-cormorant text-lg uppercase tracking-wider rounded-md hover:bg-primary/90 transition-all duration-300 disabled:bg-primary/50"
                   >
-                    {isSubmitting ? 'Submitting...' : 'Add to Playlist'}
+                    {isSubmitting ? 'Submitting...' : 'Suggest Song'}
                   </button>
                 </form>
               </div>
@@ -276,56 +277,52 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
             {/* Song Suggestions Display */}
             <div className={`transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
               <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10">
-                <h3 className="text-2xl font-playfair mb-6">Suggested Songs</h3>
-                
-                {/* Search Box */}
-                <div className="mb-6">
+                <div className="flex justify-between items-center mb-6">
+                  <h3 className="text-2xl font-playfair">Song Suggestions</h3>
                   <input
                     type="text"
-                    placeholder="Search songs or artists..."
+                    placeholder="Search songs..."
                     value={searchTerm}
-                    onChange={e => setSearchTerm(e.target.value)}
-                    className="w-full p-2 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="px-3 py-1 border border-primary/20 rounded-md text-sm"
                   />
                 </div>
                 
-                <div className="space-y-6 max-h-[500px] overflow-y-auto pr-2">
-                  {isLoading ? (
-                    <div className="flex justify-center items-center h-40">
-                      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-                    </div>
-                  ) : filteredSuggestions.length === 0 ? (
-                    <p className="text-center text-foreground/60 italic">
-                      {searchTerm ? 'No songs match your search' : 'Be the first to suggest a song!'}
-                    </p>
-                  ) : (
-                    filteredSuggestions.map(suggestion => (
-                      <div key={suggestion.id} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
-                        <div className="flex justify-between items-start">
+                {isLoading ? (
+                  <div className="flex justify-center items-center h-40">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                  </div>
+                ) : filteredSuggestions.length === 0 ? (
+                  <p className="text-center text-foreground/60 italic">
+                    {searchTerm ? 'No songs match your search.' : 'Be the first to suggest a song!'}
+                  </p>
+                ) : (
+                  <div className="space-y-4 max-h-[500px] overflow-y-auto">
+                    {filteredSuggestions.map(suggestion => (
+                      <div key={suggestion.id} className="border-b border-primary/10 pb-4 last:border-0">
+                        <div className="flex justify-between items-start mb-2">
                           <div>
-                            <h4 className="font-playfair text-xl">{suggestion.title}</h4>
-                            <p className="text-foreground/80">{suggestion.artist}</p>
-                            <p className="text-sm text-foreground/60 mt-1">
-                              Suggested by: {suggestion.suggestedBy}
-                            </p>
-                            {suggestion.reason && (
-                              <p className="font-cormorant text-foreground/70 mt-2 italic">
-                                "{suggestion.reason}"
-                              </p>
-                            )}
+                            <h4 className="font-playfair text-lg">{suggestion.title}</h4>
+                            <p className="text-sm text-foreground/70">{suggestion.artist}</p>
                           </div>
                           <button
                             onClick={() => handleLike(suggestion.id!)}
-                            className="flex items-center text-primary hover:text-primary/80 transition-colors duration-300"
+                            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
                           >
-                            <span className="mr-1 text-lg">♥</span>
-                            <span>{suggestion.likes}</span>
+                            <span>❤️</span>
+                            <span className="text-sm">{suggestion.likes || 0}</span>
                           </button>
                         </div>
+                        <p className="text-sm text-foreground/80 mb-1">
+                          <span className="italic">Suggested by {suggestion.suggestedBy}</span>
+                        </p>
+                        {suggestion.reason && (
+                          <p className="text-sm text-foreground/60">{suggestion.reason}</p>
+                        )}
                       </div>
-                    ))
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

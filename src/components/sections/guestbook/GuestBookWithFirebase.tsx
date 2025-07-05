@@ -5,8 +5,8 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { submitGuestMessage, getGuestMessages, GuestMessage } from '@/lib/firebase/guestbook';
 import Script from 'next/script';
 
-// reCAPTCHA site key
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY || '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI'; // Test key
+// reCAPTCHA site key - must be set in environment variables
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 interface GuestBookProps {
   isLoaded: boolean;
@@ -40,15 +40,17 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
 
     loadMessages();
     
-    // Initialize reCAPTCHA
-    const loadRecaptcha = () => {
-      const script = document.createElement('script');
-      script.src = 'https://www.google.com/recaptcha/api.js';
-      script.async = true;
-      document.body.appendChild(script);
-    };
-    
-    loadRecaptcha();
+    // Initialize reCAPTCHA only if site key is available
+    if (RECAPTCHA_SITE_KEY) {
+      const loadRecaptcha = () => {
+        const script = document.createElement('script');
+        script.src = 'https://www.google.com/recaptcha/api.js';
+        script.async = true;
+        document.body.appendChild(script);
+      };
+      
+      loadRecaptcha();
+    }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -65,17 +67,15 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
       return;
     }
     
-    // Temporarily disable reCAPTCHA validation
-    // Uncomment when reCAPTCHA is working properly
-    /*
-    // Validate reCAPTCHA
-    // @ts-ignore
-    const recaptchaResponse = window.grecaptcha?.getResponse();
-    if (!recaptchaResponse) {
-      setFormError('Please complete the CAPTCHA verification');
-      return;
+    // Validate reCAPTCHA if enabled
+    if (RECAPTCHA_SITE_KEY) {
+      // @ts-ignore
+      const recaptchaResponse = window.grecaptcha?.getResponse();
+      if (!recaptchaResponse) {
+        setFormError('Please complete the CAPTCHA verification');
+        return;
+      }
     }
-    */
     
     setIsSubmitting(true);
     setFormError('');
@@ -89,8 +89,7 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
       setNewMessage({ name: '', relationship: '', message: '' });
       
       // Reset reCAPTCHA
-      // @ts-ignore
-      if (window.grecaptcha) {
+      if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
         // @ts-ignore
         window.grecaptcha.reset();
       }
@@ -184,10 +183,12 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
                     ></textarea>
                   </div>
                   
-                  {/* reCAPTCHA - temporarily hidden */}
-                  <div className="mb-6">
-                    <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
-                  </div>
+                  {/* reCAPTCHA - only show if site key is available */}
+                  {RECAPTCHA_SITE_KEY && (
+                    <div className="mb-6">
+                      <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
+                    </div>
+                  )}
                   
                   <button
                     type="submit"
@@ -207,7 +208,7 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
                 
                 {isLoading ? (
                   <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
                   </div>
                 ) : messages.length === 0 ? (
                   <p className="text-center text-foreground/60 italic">
@@ -215,8 +216,8 @@ export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) =>
                   </p>
                 ) : (
                   <div className="space-y-6">
-                    {messages.map((message, index) => (
-                      <div key={message.id || index} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
+                    {messages.map(message => (
+                      <div key={message.id} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
                         <div className="flex justify-between items-center mb-2">
                           <h4 className="font-playfair text-xl">{message.name}</h4>
                           <span className="text-sm text-foreground/60">{message.date}</span>
