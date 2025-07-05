@@ -23,7 +23,7 @@ export const Hero: React.FC<HeroProps> = ({ isLoaded }) => {
       <div 
         className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `url('/images/couple/the_couple.jpeg')`,
+          backgroundImage: `url('/images/couple/the_couple.jpg')`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

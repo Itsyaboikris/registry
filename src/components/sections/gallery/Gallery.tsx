@@ -13,6 +13,12 @@ interface Photo {
 // Gallery photos - using your actual photos
 const galleryPhotos: Photo[] = [
   {
+    src: "/images/couple/the_couple.jpg",
+    alt: "Kristi & Joshua - The Couple",
+    width: 1200,
+    height: 800
+  },
+  {
     src: "/images/gallery/gallery_1.jpeg",
     alt: "Kristi & Joshua - Beautiful moments together",
     width: 1200,

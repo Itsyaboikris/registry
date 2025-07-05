@@ -43,7 +43,7 @@ export const Couple: React.FC<CoupleProps> = ({ isLoaded }) => {
             className={`relative w-full aspect-[16/9] mb-20 overflow-hidden rounded-2xl shadow-2xl transform transition-all duration-1000 ${isMainPhotoVisible ? 'translate-y-0 opacity-100' : 'translate-y-20 opacity-0'}`}
           >
             <Image
-              src="/images/couple/the_couple.jpeg"
+              src="/images/couple/the_couple.jpg"
               alt="Kristi & Joshua"
               fill
               className="object-cover"
