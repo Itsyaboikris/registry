@@ -31,12 +31,6 @@ const galleryPhotos: Photo[] = [
     height: 1200
   },
   {
-    src: "/images/gallery/gallery_3.jpeg",
-    alt: "Kristi & Joshua - Love and laughter",
-    width: 1200,
-    height: 800
-  },
-  {
     src: "/images/gallery/gallery_4.jpeg",
     alt: "Kristi & Joshua - Precious moments",
     width: 800,
@@ -57,6 +51,12 @@ const galleryPhotos: Photo[] = [
   {
     src: "/images/gallery/gallery_7_proposal_2.jpeg",
     alt: "The Proposal - Forever begins",
+    width: 1200,
+    height: 800
+  },
+  {
+    src: "/images/gallery/gallery_8.jpeg",
+    alt: "Kristi & Joshua - More beautiful moments",
     width: 1200,
     height: 800
   }
