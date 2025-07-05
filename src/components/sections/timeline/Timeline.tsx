@@ -16,28 +16,34 @@ interface TimelineProps {
 
 const timelineEvents: TimelineEvent[] = [
   {
-    date: "June 10, 2025 - 4:00 PM",
-    title: "Welcome Reception",
-    location: "Garden Patio",
-    description: "Join us for drinks and appetizers as we welcome our guests."
+    date: "2:00 PM",
+    title: "Guest Arrival",
+    location: "Venue",
+    description: "Please arrive at the venue NO later than 15 minutes before the ceremony."
   },
   {
-    date: "June 11, 2025 - 2:00 PM",
+    date: "2:30 PM",
     title: "Ceremony",
-    location: "Rose Garden",
+    location: "Venue",
     description: "Witness our vows as we officially tie the knot."
   },
   {
-    date: "June 11, 2025 - 5:00 PM",
-    title: "Dinner & Dancing",
-    location: "Grand Ballroom",
-    description: "Celebrate with us with a formal dinner followed by dancing."
+    date: "3:45 PM",
+    title: "Cocktail Hour",
+    location: "Venue",
+    description: "Join us for drinks and appetizers as we celebrate our new beginning."
   },
   {
-    date: "June 12, 2025 - 10:00 AM",
-    title: "Farewell Brunch",
-    location: "Terrace Restaurant",
-    description: "A casual brunch to say goodbye before we depart for our honeymoon."
+    date: "4:45 PM",
+    title: "Dinner Reception",
+    location: "Venue",
+    description: "Enjoy a delicious dinner as we celebrate with family and friends."
+  },
+  {
+    date: "6:00 PM",
+    title: "Dancing",
+    location: "Venue",
+    description: "Let's dance the night away and celebrate our special day."
   }
 ];
 

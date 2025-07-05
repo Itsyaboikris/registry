@@ -94,7 +94,7 @@ export const Couple: React.FC<CoupleProps> = ({ isLoaded }) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent transition-opacity duration-500 group-hover:opacity-70" />
               <div className="absolute bottom-0 left-0 right-0 p-6 text-white transform transition-transform duration-500 group-hover:translate-y-2">
-                <h3 className="text-3xl font-playfair mb-2">Joshuaael</h3>
+                <h3 className="text-3xl font-playfair mb-2">Joshua</h3>
                 <p className="font-cormorant text-lg">The Groom</p>
               </div>
             </div>
