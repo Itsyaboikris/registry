@@ -1,236 +1,203 @@
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { useScrollAnimation } from '@/hooks/useScrollAnimation';
-import { submitGuestMessage, getGuestMessages, GuestMessage } from '@/lib/firebase/guestbook';
-import Script from 'next/script';
+import { useState, useEffect } from 'react';
+import { submitGuestMessage } from '@/lib/firebase/guestbook';
 
 // reCAPTCHA site key - must be set in environment variables
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+// const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
-interface GuestBookProps {
+interface GuestBookWithFirebaseProps {
   isLoaded: boolean;
 }
 
-export const GuestBookWithFirebase: React.FC<GuestBookProps> = ({ isLoaded }) => {
-  const [messages, setMessages] = useState<GuestMessage[]>([]);
-  const [newMessage, setNewMessage] = useState({ name: '', relationship: '', message: '' });
-  const [formError, setFormError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  const { elementRef, isVisible } = useScrollAnimation({
-    threshold: 0.1,
-    resetOnExit: false
+export const GuestBookWithFirebase: React.FC<GuestBookWithFirebaseProps> = ({ isLoaded }) => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    relationship: "",
+    message: ""
   });
+  
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
-  // Load messages from Firebase when component mounts
   useEffect(() => {
-    const loadMessages = async () => {
-      try {
-        const fetchedMessages = await getGuestMessages();
-        setMessages(fetchedMessages);
-      } catch (error) {
-        console.error('Error loading messages:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadMessages();
-    
-    // Initialize reCAPTCHA only if site key is available
-    if (RECAPTCHA_SITE_KEY) {
-      const loadRecaptcha = () => {
-        const script = document.createElement('script');
-        script.src = 'https://www.google.com/recaptcha/api.js';
-        script.async = true;
-        document.body.appendChild(script);
-      };
-      
-      loadRecaptcha();
+    if (isLoaded) {
+      setIsVisible(true);
     }
-  }, []);
+  }, [isLoaded]);
+
+  // Initialize reCAPTCHA only if site key is available
+  // if (RECAPTCHA_SITE_KEY) {
+  //   const loadRecaptcha = () => {
+  //     const script = document.createElement('script');
+  //     script.src = 'https://www.google.com/recaptcha/api.js';
+  //     script.async = true;
+  //     script.defer = true;
+  //     document.head.appendChild(script);
+  //   };
+  //   loadRecaptcha();
+  // }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewMessage(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    // Validate form
-    if (!newMessage.name || !newMessage.relationship || !newMessage.message) {
-      setFormError('Please fill in all fields');
+    // Basic validation
+    if (!formData.name || !formData.relationship || !formData.message) {
+      setSubmitError("Please fill out all fields.");
       return;
     }
     
     // Validate reCAPTCHA if enabled
-    if (RECAPTCHA_SITE_KEY) {
-      // @ts-ignore
-      const recaptchaResponse = window.grecaptcha?.getResponse();
-      if (!recaptchaResponse) {
-        setFormError('Please complete the CAPTCHA verification');
-        return;
-      }
-    }
+    // if (RECAPTCHA_SITE_KEY) {
+    //   const recaptchaResponse = window.grecaptcha?.getResponse();
+    //   if (!recaptchaResponse) {
+    //     setSubmitError("Please complete the reCAPTCHA verification.");
+    //     return;
+    //   }
+    // }
     
     setIsSubmitting(true);
-    setFormError('');
+    setSubmitError("");
     
     try {
       // Submit to Firebase
-      await submitGuestMessage(newMessage);
+      await submitGuestMessage({
+        name: formData.name,
+        relationship: formData.relationship,
+        message: formData.message
+      });
       
-      // Show pending approval message
-      setShowSuccess(true);
-      setNewMessage({ name: '', relationship: '', message: '' });
+      // Show success message and reset form
+      setSubmitSuccess(true);
+      setFormData({
+        name: "",
+        relationship: "",
+        message: ""
+      });
       
       // Reset reCAPTCHA
-      if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
-        // @ts-ignore
-        window.grecaptcha.reset();
-      }
+      // if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
+      //   window.grecaptcha.reset();
+      // }
       
-      // Hide success message after 3 seconds
-      setTimeout(() => setShowSuccess(false), 5000);
     } catch (error) {
-      console.error('Error submitting message:', error);
-      setFormError('An error occurred while submitting your message. Please try again.');
-    } finally {
-      setIsSubmitting(false);
+      console.error("Error submitting guest message:", error);
+      setSubmitError("There was an error submitting your message. Please try again later.");
     }
+    
+    setIsSubmitting(false);
   };
+
+  if (submitSuccess) {
+    return (
+      <div className="text-center space-y-6">
+        <div className="p-4 bg-green-50 text-green-800 rounded-md">
+          Thank you for your message! It has been submitted and will be reviewed before appearing on our guest book.
+        </div>
+        <button 
+          onClick={() => setSubmitSuccess(false)}
+          className="text-primary hover:underline font-cormorant"
+        >
+          Leave Another Message
+        </button>
+      </div>
+    );
+  }
 
   return (
     <section className="py-20 bg-white">
       <div className="container mx-auto px-4">
-        <div ref={elementRef} className="max-w-6xl mx-auto">
-          <h2 className={`text-5xl font-playfair text-center mb-4 gold-text transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Guest Book
-          </h2>
-          <p className={`text-xl font-cormorant text-center mb-12 text-foreground/80 transition-all duration-700 delay-100 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-            Leave your wishes and messages for our special day
-          </p>
+        <div className="max-w-4xl mx-auto">
+          <div className={`text-center mb-16 transition-all duration-700 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <h2 className="text-5xl font-playfair mb-4 gold-text">Guest Book</h2>
+            <p className="text-xl font-cormorant text-foreground/80">
+              Leave a message for the happy couple
+            </p>
+          </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Form Section */}
-            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}>
-              <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10">
-                <h3 className="text-2xl font-playfair mb-6">Leave a Message</h3>
+          <div className={`max-w-2xl mx-auto transition-all duration-700 delay-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+            <div className="bg-[#faf7f2] p-8 rounded-lg shadow-xl border border-primary/10">
+              {submitError && (
+                <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-md">
+                  {submitError}
+                </div>
+              )}
+              
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-1">
+                    Your Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                    placeholder="Enter your full name"
+                    required
+                  />
+                </div>
                 
-                {showSuccess && (
-                  <div className="mb-6 p-4 bg-green-50 text-green-800 rounded-md">
-                    Thank you for your message! It has been submitted for review and will appear in our guest book once approved.
-                  </div>
-                )}
-                
-                {formError && (
-                  <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-md">
-                    {formError}
-                  </div>
-                )}
-                
-                <form onSubmit={handleSubmit}>
-                  <div className="mb-4">
-                    <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-1">
-                      Your Name
-                    </label>
-                    <input
-                      type="text"
-                      id="name"
-                      name="name"
-                      value={newMessage.name}
-                      onChange={handleInputChange}
-                      className="w-full p-2 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-                      placeholder="Enter your name"
-                    />
-                  </div>
-                  
-                  <div className="mb-4">
-                    <label htmlFor="relationship" className="block text-sm font-medium text-foreground/80 mb-1">
-                      Your Relationship
-                    </label>
-                    <select
-                      id="relationship"
-                      name="relationship"
-                      value={newMessage.relationship}
-                      onChange={handleInputChange}
-                      className="w-full p-2 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-                    >
-                      <option value="">Select your relationship</option>
-                      <option value="Family">Family</option>
-                      <option value="Friend">Friend</option>
-                      <option value="Colleague">Colleague</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-                  
-                  <div className="mb-6">
-                    <label htmlFor="message" className="block text-sm font-medium text-foreground/80 mb-1">
-                      Your Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      rows={4}
-                      value={newMessage.message}
-                      onChange={handleInputChange}
-                      className="w-full p-2 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-                      placeholder="Write your message..."
-                    ></textarea>
-                  </div>
-                  
-                  {/* reCAPTCHA - only show if site key is available */}
-                  {RECAPTCHA_SITE_KEY && (
-                    <div className="mb-6">
-                      <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
-                    </div>
-                  )}
-                  
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 bg-primary text-white font-cormorant text-lg uppercase tracking-wider rounded-md hover:bg-primary/90 transition-all duration-300 disabled:bg-primary/50"
+                <div>
+                  <label htmlFor="relationship" className="block text-sm font-medium text-foreground/80 mb-1">
+                    Your Relationship to the Couple *
+                  </label>
+                  <select
+                    id="relationship"
+                    name="relationship"
+                    value={formData.relationship}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                    required
                   >
-                    {isSubmitting ? 'Submitting...' : 'Sign Guest Book'}
-                  </button>
-                </form>
-              </div>
-            </div>
-            
-            {/* Messages Display */}
-            <div className={`transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
-              <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10 max-h-[600px] overflow-y-auto">
-                <h3 className="text-2xl font-playfair mb-6">Messages</h3>
+                    <option value="">Select your relationship</option>
+                    <option value="Family">Family</option>
+                    <option value="Friend">Friend</option>
+                    <option value="Colleague">Colleague</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
                 
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium text-foreground/80 mb-1">
+                    Your Message *
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    value={formData.message}
+                    onChange={handleInputChange}
+                    className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                    placeholder="Share your well wishes, memories, or advice for the couple..."
+                    required
+                  ></textarea>
+                </div>
+                
+                {/* reCAPTCHA - only show if site key is available */}
+                {/* {RECAPTCHA_SITE_KEY && (
+                  <div className="flex justify-center">
+                    <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
                   </div>
-                ) : messages.length === 0 ? (
-                  <p className="text-center text-foreground/60 italic">
-                    Be the first to sign our guest book!
-                  </p>
-                ) : (
-                  <div className="space-y-6">
-                    {messages.map(message => (
-                      <div key={message.id} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-playfair text-xl">{message.name}</h4>
-                          <span className="text-sm text-foreground/60">{message.date}</span>
-                        </div>
-                        <p className="text-sm text-foreground/80 mb-2">
-                          <span className="italic">{message.relationship}</span>
-                        </p>
-                        <p className="font-cormorant text-lg">{message.message}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
+                )} */}
+                
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full px-6 py-4 bg-primary text-white font-cormorant text-xl uppercase tracking-wider rounded-md hover:bg-primary/90 transition-all duration-300 disabled:bg-primary/50"
+                >
+                  {isSubmitting ? 'Submitting...' : 'Submit Message'}
+                </button>
+              </form>
             </div>
           </div>
         </div>

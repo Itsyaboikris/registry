@@ -21,7 +21,7 @@ const faqItems: FAQItem[] = [
   },
   {
     question: "What time is the wedding?",
-    answer: "The ceremony begins at 2:30 PM. Please arrive at the venue NO later than 2:15 PM; if you arrive after the ceremony begins, you will not be able to be seated.",
+    answer: "The ceremony begins at 2:30 PM. Please arrive at the venue NO later than 2:00 PM; if you arrive after the ceremony begins, you will not be able to be seated.",
     category: 'general'
   },
   {

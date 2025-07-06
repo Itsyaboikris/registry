@@ -5,7 +5,7 @@ import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { submitSongSuggestion, getSongSuggestions, likeSongSuggestion, SongSuggestion } from '@/lib/firebase/music-playlist';
 
 // reCAPTCHA site key - must be set in environment variables
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+// const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 // interface SongSuggestion {
 //   id: string;
@@ -78,16 +78,16 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
     loadSongs();
     
     // Initialize reCAPTCHA only if site key is available
-    if (RECAPTCHA_SITE_KEY) {
-      const loadRecaptcha = () => {
-        const script = document.createElement('script');
-        script.src = 'https://www.google.com/recaptcha/api.js';
-        script.async = true;
-        document.body.appendChild(script);
-      };
-      
-      loadRecaptcha();
-    }
+    // if (RECAPTCHA_SITE_KEY) {
+    //   const loadRecaptcha = () => {
+    //     const script = document.createElement('script');
+    //     script.src = 'https://www.google.com/recaptcha/api.js';
+    //     script.async = true;
+    //     document.body.appendChild(script);
+    //   };
+    //   
+    //   loadRecaptcha();
+    // }
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -105,14 +105,14 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
     }
     
     // Validate reCAPTCHA if enabled
-    if (RECAPTCHA_SITE_KEY) {
-      // @ts-ignore
-      const recaptchaResponse = window.grecaptcha?.getResponse();
-      if (!recaptchaResponse) {
-        setFormError('Please complete the CAPTCHA verification');
-        return;
-      }
-    }
+    // if (RECAPTCHA_SITE_KEY) {
+    //   // @ts-ignore
+    //   const recaptchaResponse = window.grecaptcha?.getResponse();
+    //   if (!recaptchaResponse) {
+    //     setFormError('Please complete the CAPTCHA verification');
+    //     return;
+    //   }
+    // }
     
     setIsSubmitting(true);
     setFormError('');
@@ -126,10 +126,10 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
       setNewSuggestion({ title: '', artist: '', suggestedBy: '', reason: '' });
       
       // Reset reCAPTCHA
-      if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
-        // @ts-ignore
-        window.grecaptcha.reset();
-      }
+      // if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
+      //   // @ts-ignore
+      //   window.grecaptcha.reset();
+      // }
       
       // Hide success message after 5 seconds
       setTimeout(() => setShowSuccess(false), 5000);
@@ -257,11 +257,11 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
                   </div>
                   
                   {/* reCAPTCHA - only show if site key is available */}
-                  {RECAPTCHA_SITE_KEY && (
+                  {/* {RECAPTCHA_SITE_KEY && (
                     <div className="mb-6">
                       <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
                     </div>
-                  )}
+                  )} */}
                   
                   <button
                     type="submit"

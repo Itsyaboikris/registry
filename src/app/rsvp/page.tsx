@@ -13,7 +13,8 @@ export default function RSVP() {
     guestCount: "1",
     attending: "yes",
     dietaryRestrictions: "",
-    message: ""
+    message: "",
+    guestNames: ["", "", ""] // For up to 4 guests (including the main guest)
   });
   
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -24,6 +25,12 @@ export default function RSVP() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
+
+  const handleGuestNameChange = (index: number, value: string) => {
+    const newGuestNames = [...formData.guestNames];
+    newGuestNames[index] = value;
+    setFormData(prev => ({ ...prev, guestNames: newGuestNames }));
+  };
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -32,6 +39,17 @@ export default function RSVP() {
     if (!formData.name || !formData.email) {
       setSubmitError("Please fill out your name and email.");
       return;
+    }
+
+    // Validate guest names if attending
+    if (formData.attending === "yes") {
+      const guestCount = parseInt(formData.guestCount);
+      for (let i = 1; i < guestCount; i++) {
+        if (!formData.guestNames[i] || formData.guestNames[i].trim() === "") {
+          setSubmitError(`Please provide the name for guest ${i + 1}.`);
+          return;
+        }
+      }
     }
     
     setIsSubmitting(true);
@@ -47,12 +65,20 @@ export default function RSVP() {
         return;
       }
       
+      // Prepare guest names array
+      const guestNames = [formData.name];
+      const guestCount = parseInt(formData.guestCount);
+      for (let i = 1; i < guestCount; i++) {
+        guestNames.push(formData.guestNames[i]);
+      }
+      
       // Submit to Firebase
       await submitRSVP({
         name: formData.name,
         email: formData.email,
         attending: formData.attending === "yes",
-        guestCount: parseInt(formData.guestCount),
+        guestCount: guestCount,
+        guestNames: guestNames,
         dietaryRestrictions: formData.dietaryRestrictions,
         message: formData.message
       });
@@ -65,7 +91,8 @@ export default function RSVP() {
         guestCount: "1",
         attending: "yes",
         dietaryRestrictions: "",
-        message: ""
+        message: "",
+        guestNames: ["", "", ""]
       });
       
     } catch (error) {
@@ -92,6 +119,8 @@ export default function RSVP() {
       </div>
     );
   }
+
+  const guestCount = parseInt(formData.guestCount);
 
   return (
     <div className="min-h-screen bg-[#faf7f2] py-20">
@@ -181,6 +210,29 @@ export default function RSVP() {
                       <option value="4">4 Guests</option>
                     </select>
                   </div>
+
+                  {/* Additional Guest Names */}
+                  {guestCount > 1 && (
+                    <div className="space-y-4">
+                      <h3 className="font-playfair text-lg text-primary">Additional Guest Names</h3>
+                      {Array.from({ length: guestCount - 1 }, (_, index) => (
+                        <div key={index}>
+                          <label htmlFor={`guest-${index + 2}`} className="block text-sm font-medium text-foreground/80 mb-1">
+                            Guest {index + 2} Name *
+                          </label>
+                          <input
+                            type="text"
+                            id={`guest-${index + 2}`}
+                            value={formData.guestNames[index + 1]}
+                            onChange={(e) => handleGuestNameChange(index + 1, e.target.value)}
+                            className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                            placeholder={`Enter full name for guest ${index + 2}`}
+                            required
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   
                   <div>
                     <label htmlFor="dietaryRestrictions" className="block text-sm font-medium text-foreground/80 mb-1">

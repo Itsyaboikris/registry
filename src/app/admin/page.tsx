@@ -3,13 +3,15 @@
 import { useState, useEffect } from "react";
 import { getGuestMessages, GuestMessage } from "@/lib/firebase/guestbook";
 import { getSongSuggestions, SongSuggestion } from "@/lib/firebase/music-playlist";
+import { getRSVPs, RSVPData } from "@/lib/firebase/rsvp";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 
 export default function AdminPage() {
-  const [activeTab, setActiveTab] = useState<"guestbook" | "songs">("guestbook");
+  const [activeTab, setActiveTab] = useState<"guestbook" | "songs" | "rsvp">("guestbook");
   const [guestMessages, setGuestMessages] = useState<GuestMessage[]>([]);
   const [songSuggestions, setSongSuggestions] = useState<SongSuggestion[]>([]);
+  const [rsvps, setRsvps] = useState<(RSVPData & { id: string })[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [password, setPassword] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -43,14 +45,16 @@ export default function AdminPage() {
   const loadData = async () => {
     setIsLoading(true);
     try {
-      // Load both guestbook messages and song suggestions
-      const [messages, songs] = await Promise.all([
+      // Load guestbook messages, song suggestions, and RSVPs
+      const [messages, songs, rsvpData] = await Promise.all([
         getGuestMessages(100, false), // Get all messages including unapproved
-        getSongSuggestions(100, false) // Get all songs including unapproved
+        getSongSuggestions(100, false), // Get all songs including unapproved
+        getRSVPs() // Get all RSVPs
       ]);
       
       setGuestMessages(messages);
       setSongSuggestions(songs);
+      setRsvps(rsvpData);
     } catch (error) {
       console.error("Error loading data:", error);
     } finally {
@@ -106,6 +110,19 @@ export default function AdminPage() {
   const handleLogout = () => {
     localStorage.removeItem("wedding_admin_auth");
     setIsAuthenticated(false);
+  };
+
+  const formatDate = (timestamp: any) => {
+    if (!timestamp) return "N/A";
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString();
+  };
+
+  const getGuestNamesDisplay = (rsvp: RSVPData & { id: string }) => {
+    if (!rsvp.guestNames || rsvp.guestNames.length === 0) {
+      return rsvp.name;
+    }
+    return rsvp.guestNames.join(", ");
   };
   
   if (!isAuthenticated) {
@@ -167,6 +184,14 @@ export default function AdminPage() {
             onClick={() => setActiveTab("songs")}
           >
             Song Suggestions
+          </button>
+          <button
+            className={`px-4 py-2 font-medium ${
+              activeTab === "rsvp" ? "border-b-2 border-primary text-primary" : "text-gray-500"
+            }`}
+            onClick={() => setActiveTab("rsvp")}
+          >
+            RSVPs
           </button>
         </div>
         
@@ -238,7 +263,7 @@ export default function AdminPage() {
                 </table>
               </div>
             </>
-          ) : (
+          ) : activeTab === "songs" ? (
             <>
               <h2 className="text-2xl font-playfair mb-4">Song Suggestions</h2>
               <button 
@@ -295,6 +320,71 @@ export default function AdminPage() {
                           >
                             Delete
                           </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          ) : (
+            <>
+              <h2 className="text-2xl font-playfair mb-4">RSVP Submissions</h2>
+              <button 
+                onClick={loadData} 
+                className="mb-4 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-sm"
+              >
+                Refresh
+              </button>
+              
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Primary Guest</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">All Guests</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attending</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Guest Count</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dietary Restrictions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {rsvps.map((rsvp) => (
+                      <tr key={rsvp.id} className={rsvp.attending ? "bg-green-50" : "bg-red-50"}>
+                        <td className="px-6 py-4 whitespace-nowrap font-medium">{rsvp.name}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">{rsvp.email}</td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm">
+                            {getGuestNamesDisplay(rsvp)}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {rsvp.attending ? (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                              Yes
+                            </span>
+                          ) : (
+                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                              No
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">{rsvp.guestCount}</td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm max-w-xs truncate">
+                            {rsvp.dietaryRestrictions || "None"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm max-w-xs truncate">
+                            {rsvp.message || "None"}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          {formatDate(rsvp.timestamp)}
                         </td>
                       </tr>
                     ))}

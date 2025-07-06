@@ -1,5 +1,5 @@
 import { db } from '@/lib/firebase';
-import { collection, addDoc, getDocs, query, where, Timestamp, DocumentData } from 'firebase/firestore';
+import { collection, addDoc, getDocs, query, where, Timestamp, DocumentData, orderBy } from 'firebase/firestore';
 
 // Interface for RSVP data
 export interface RSVPData {
@@ -7,6 +7,7 @@ export interface RSVPData {
   email: string;
   attending: boolean;
   guestCount: number;
+  guestNames?: string[];
   dietaryRestrictions: string;
   message?: string;
   timestamp?: Date;
@@ -28,6 +29,25 @@ export async function submitRSVP(data: RSVPData): Promise<string> {
     return docRef.id;
   } catch (error) {
     console.error('Error submitting RSVP:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all RSVPs from Firestore
+ */
+export async function getRSVPs(): Promise<(RSVPData & { id: string })[]> {
+  try {
+    const rsvpRef = collection(db, 'rsvps');
+    const q = query(rsvpRef, orderBy('timestamp', 'desc'));
+    const querySnapshot = await getDocs(q);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as (RSVPData & { id: string })[];
+  } catch (error) {
+    console.error('Error getting RSVPs:', error);
     throw error;
   }
 }

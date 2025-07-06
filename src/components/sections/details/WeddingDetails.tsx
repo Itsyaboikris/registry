@@ -58,7 +58,7 @@ export const WeddingDetails: React.FC<WeddingDetailsProps> = ({ isLoaded }) => {
                     <p className="font-cormorant text-lg text-foreground/80">
                       October 31, 2025<br />
                       Ceremony begins at 2:30 PM<br />
-                      <span className="text-sm italic">Please arrive by 2:15 PM</span>
+                      <span className="text-sm italic">Please arrive by 2:00 PM</span>
                     </p>
                   </div>
                 </div>
