@@ -34,7 +34,7 @@ export default function Registry() {
         lastName: "RILEY",
         bankName: "Scotiabank",
         accountType: "CHEQUING",
-        Number: "60525 2414012",
+        accountNumber: "2414012",
         accountCurrency: "TTD"
       }
     },
