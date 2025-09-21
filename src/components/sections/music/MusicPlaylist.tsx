@@ -276,53 +276,59 @@ export const MusicPlaylist: React.FC<MusicPlaylistProps> = ({ isLoaded }) => {
             
             {/* Song Suggestions Display */}
             <div className={`transition-all duration-700 delay-300 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-10'}`}>
-              <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-2xl font-playfair">Song Suggestions</h3>
-                  <input
-                    type="text"
-                    placeholder="Search songs..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="px-3 py-1 border border-primary/20 rounded-md text-sm"
-                  />
+              <div className="bg-white rounded-lg shadow-xl border border-primary/10 max-h-[600px] flex flex-col">
+                {/* Fixed Header */}
+                <div className="p-8 pb-4 border-b border-primary/10">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-2xl font-playfair">Song Suggestions</h3>
+                    <input
+                      type="text"
+                      placeholder="Search songs..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="px-3 py-1 border border-primary/20 rounded-md text-sm"
+                    />
+                  </div>
                 </div>
                 
-                {isLoading ? (
-                  <div className="flex justify-center items-center h-40">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                  </div>
-                ) : filteredSuggestions.length === 0 ? (
-                  <p className="text-center text-foreground/60 italic">
-                    {searchTerm ? 'No songs match your search.' : 'Be the first to suggest a song!'}
-                  </p>
-                ) : (
-                  <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                    {filteredSuggestions.map(suggestion => (
-                      <div key={suggestion.id} className="border-b border-primary/10 pb-4 last:border-0">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-playfair text-lg">{suggestion.title}</h4>
-                            <p className="text-sm text-foreground/70">{suggestion.artist}</p>
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-8 pt-4">
+                  {isLoading ? (
+                    <div className="flex justify-center items-center h-40">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  ) : filteredSuggestions.length === 0 ? (
+                    <p className="text-center text-foreground/60 italic">
+                      {searchTerm ? 'No songs match your search.' : 'Be the first to suggest a song!'}
+                    </p>
+                  ) : (
+                    <div className="space-y-4">
+                      {filteredSuggestions.map(suggestion => (
+                        <div key={suggestion.id} className="border-b border-primary/10 pb-4 last:border-0">
+                          <div className="flex justify-between items-start mb-2">
+                            <div>
+                              <h4 className="font-playfair text-lg">{suggestion.title}</h4>
+                              <p className="text-sm text-foreground/70">{suggestion.artist}</p>
+                            </div>
+                            <button
+                              onClick={() => handleLike(suggestion.id!)}
+                              className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
+                            >
+                              <span>❤️</span>
+                              <span className="text-sm">{suggestion.likes || 0}</span>
+                            </button>
                           </div>
-                          <button
-                            onClick={() => handleLike(suggestion.id!)}
-                            className="flex items-center gap-1 text-primary hover:text-primary/80 transition-colors"
-                          >
-                            <span>❤️</span>
-                            <span className="text-sm">{suggestion.likes || 0}</span>
-                          </button>
+                          <p className="text-sm text-foreground/80 mb-1">
+                            <span className="italic">Suggested by {suggestion.suggestedBy}</span>
+                          </p>
+                          {suggestion.reason && (
+                            <p className="text-sm text-foreground/60">{suggestion.reason}</p>
+                          )}
                         </div>
-                        <p className="text-sm text-foreground/80 mb-1">
-                          <span className="italic">Suggested by {suggestion.suggestedBy}</span>
-                        </p>
-                        {suggestion.reason && (
-                          <p className="text-sm text-foreground/60">{suggestion.reason}</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
