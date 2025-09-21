@@ -7,8 +7,8 @@ interface RSVPProps {
   isLoaded: boolean;
 }
 
-// RSVP deadline: September 20, 2025 at midnight
-const RSVP_DEADLINE = new Date('2025-09-21T00:00:00'); // September 21st at midnight = September 20th end
+// RSVP deadline: September 20, 2025 at midnight UTC
+const RSVP_DEADLINE = new Date('2025-09-21T00:00:00Z'); // September 21st at midnight UTC = September 20th end
 
 export const RSVP: React.FC<RSVPProps> = ({ isLoaded }) => {
   const [isVisible, setIsVisible] = useState(false);
@@ -22,7 +22,13 @@ export const RSVP: React.FC<RSVPProps> = ({ isLoaded }) => {
 
   useEffect(() => {
     const now = new Date();
-    setIsDeadlinePassed(now >= RSVP_DEADLINE);
+    const isPassed = now >= RSVP_DEADLINE;
+    console.log('Homepage RSVP Deadline Check:', {
+      currentTime: now.toISOString(),
+      deadline: RSVP_DEADLINE.toISOString(),
+      isPassed: isPassed
+    });
+    setIsDeadlinePassed(isPassed);
   }, []);
 
   return (
