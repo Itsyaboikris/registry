@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { submitGuestMessage } from '@/lib/firebase/guestbook';
+import { submitGuestMessage, getGuestMessages, GuestMessage } from '@/lib/firebase/guestbook';
 
 // reCAPTCHA site key - must be set in environment variables
 // const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
@@ -21,12 +21,27 @@ export const GuestBookWithFirebase: React.FC<GuestBookWithFirebaseProps> = ({ is
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const [messages, setMessages] = useState<GuestMessage[]>([]);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(false);
 
   useEffect(() => {
     if (isLoaded) {
       setIsVisible(true);
+      loadMessages();
     }
   }, [isLoaded]);
+
+  const loadMessages = async () => {
+    setIsLoadingMessages(true);
+    try {
+      const approvedMessages = await getGuestMessages(3, true); // Get only 3 latest approved messages
+      setMessages(approvedMessages);
+    } catch (error) {
+      console.error('Error loading guest messages:', error);
+    } finally {
+      setIsLoadingMessages(false);
+    }
+  };
 
   // Initialize reCAPTCHA only if site key is available
   // if (RECAPTCHA_SITE_KEY) {
@@ -82,6 +97,9 @@ export const GuestBookWithFirebase: React.FC<GuestBookWithFirebaseProps> = ({ is
         message: ""
       });
       
+      // Reload messages to show the new submission (if approved)
+      loadMessages();
+      
       // Reset reCAPTCHA
       // if (RECAPTCHA_SITE_KEY && window.grecaptcha) {
       //   window.grecaptcha.reset();
@@ -122,82 +140,117 @@ export const GuestBookWithFirebase: React.FC<GuestBookWithFirebaseProps> = ({ is
             </p>
           </div>
           
-          <div className={`max-w-2xl mx-auto transition-all duration-700 delay-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-            <div className="bg-[#faf7f2] p-8 rounded-lg shadow-xl border border-primary/10">
-              {submitError && (
-                <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-md">
-                  {submitError}
-                </div>
-              )}
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-1">
-                    Your Name *
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <label htmlFor="relationship" className="block text-sm font-medium text-foreground/80 mb-1">
-                    Your Relationship to the Couple *
-                  </label>
-                  <select
-                    id="relationship"
-                    name="relationship"
-                    value={formData.relationship}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-                    required
-                  >
-                    <option value="">Select your relationship</option>
-                    <option value="Family">Family</option>
-                    <option value="Friend">Friend</option>
-                    <option value="Colleague">Colleague</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-                
-                <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-foreground/80 mb-1">
-                    Your Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    rows={4}
-                    value={formData.message}
-                    onChange={handleInputChange}
-                    className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
-                    placeholder="Share your well wishes, memories, or advice for the couple..."
-                    required
-                  ></textarea>
-                </div>
-                
-                {/* reCAPTCHA - only show if site key is available */}
-                {/* {RECAPTCHA_SITE_KEY && (
-                  <div className="flex justify-center">
-                    <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Form Section */}
+            <div className={`transition-all duration-700 delay-100 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+              <div className="bg-[#faf7f2] p-8 rounded-lg shadow-xl border border-primary/10">
+                {submitError && (
+                  <div className="mb-6 p-4 bg-red-50 text-red-800 rounded-md">
+                    {submitError}
                   </div>
-                )} */}
+                )}
                 
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-6 py-4 bg-primary text-white font-cormorant text-xl uppercase tracking-wider rounded-md hover:bg-primary/90 transition-all duration-300 disabled:bg-primary/50"
-                >
-                  {isSubmitting ? 'Submitting...' : 'Submit Message'}
-                </button>
-              </form>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <div>
+                    <label htmlFor="name" className="block text-sm font-medium text-foreground/80 mb-1">
+                      Your Name *
+                    </label>
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="Enter your full name"
+                      required
+                    />
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="relationship" className="block text-sm font-medium text-foreground/80 mb-1">
+                      Your Relationship to the Couple *
+                    </label>
+                    <select
+                      id="relationship"
+                      name="relationship"
+                      value={formData.relationship}
+                      onChange={handleInputChange}
+                      className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                      required
+                    >
+                      <option value="">Select your relationship</option>
+                      <option value="Family">Family</option>
+                      <option value="Friend">Friend</option>
+                      <option value="Colleague">Colleague</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  </div>
+                  
+                  <div>
+                    <label htmlFor="message" className="block text-sm font-medium text-foreground/80 mb-1">
+                      Your Message *
+                    </label>
+                    <textarea
+                      id="message"
+                      name="message"
+                      rows={4}
+                      value={formData.message}
+                      onChange={handleInputChange}
+                      className="w-full p-3 border border-primary/20 rounded-md focus:border-primary focus:ring-1 focus:ring-primary"
+                      placeholder="Share your well wishes, memories, or advice for the couple..."
+                      required
+                    ></textarea>
+                  </div>
+                  
+                  {/* reCAPTCHA - only show if site key is available */}
+                  {/* {RECAPTCHA_SITE_KEY && (
+                    <div className="flex justify-center">
+                      <div className="g-recaptcha" data-sitekey={RECAPTCHA_SITE_KEY}></div>
+                    </div>
+                  )} */}
+                  
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full px-6 py-4 bg-primary text-white font-cormorant text-xl uppercase tracking-wider rounded-md hover:bg-primary/90 transition-all duration-300 disabled:bg-primary/50"
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Submit Message'}
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Messages Display Section */}
+            <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
+              <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10 max-h-[600px] overflow-y-auto">
+                <h3 className="text-2xl font-playfair mb-6">Guest Messages</h3>
+                
+                {isLoadingMessages ? (
+                  <div className="flex justify-center items-center h-32">
+                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                  </div>
+                ) : messages.length === 0 ? (
+                  <p className="text-center text-foreground/60 italic">
+                    Be the first to sign our guest book!
+                  </p>
+                ) : (
+                  <div className="space-y-6">
+                    {messages.map(message => (
+                      <div key={message.id} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
+                        <div className="flex justify-between items-center mb-2">
+                          <h4 className="font-playfair text-xl">{message.name}</h4>
+                          <span className="text-sm text-foreground/60">{message.date}</span>
+                        </div>
+                        <p className="text-sm text-foreground/80 mb-2">
+                          <span className="italic">{message.relationship}</span>
+                        </p>
+                        <p className="font-cormorant text-lg">{message.message}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
