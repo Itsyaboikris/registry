@@ -6,6 +6,7 @@ import { getSongSuggestions, SongSuggestion } from "@/lib/firebase/music-playlis
 import { getRSVPs, RSVPData } from "@/lib/firebase/rsvp";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import * as XLSX from 'xlsx';
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<"guestbook" | "songs" | "rsvp">("guestbook");
@@ -123,6 +124,57 @@ export default function AdminPage() {
       return rsvp.name;
     }
     return rsvp.guestNames.join(", ");
+  };
+
+  const downloadRSVPsAsExcel = () => {
+    // Prepare data for Excel export with each guest in their own row
+    const excelData: any[] = [];
+    
+    rsvps.forEach((rsvp) => {
+      const guestNames = rsvp.guestNames && rsvp.guestNames.length > 0 ? rsvp.guestNames : [rsvp.name];
+      
+      guestNames.forEach((guestName, index) => {
+        excelData.push({
+          'Primary Guest': rsvp.name,
+          'Email': rsvp.email,
+          'Guest Name': guestName,
+          'Guest Number': index + 1,
+          'Attending': rsvp.attending ? 'Yes' : 'No',
+          'Total Guest Count': rsvp.guestCount,
+          'Dietary Restrictions': rsvp.dietaryRestrictions || 'None',
+          'Message': rsvp.message || 'None',
+          'Submission Date': formatDate(rsvp.timestamp)
+        });
+      });
+    });
+
+    // Create workbook and worksheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(excelData);
+
+    // Set column widths
+    const colWidths = [
+      { wch: 20 }, // Primary Guest
+      { wch: 25 }, // Email
+      { wch: 25 }, // Guest Name
+      { wch: 12 }, // Guest Number
+      { wch: 10 }, // Attending
+      { wch: 15 }, // Total Guest Count
+      { wch: 25 }, // Dietary Restrictions
+      { wch: 30 }, // Message
+      { wch: 20 }  // Submission Date
+    ];
+    ws['!cols'] = colWidths;
+
+    // Add worksheet to workbook
+    XLSX.utils.book_append_sheet(wb, ws, 'RSVPs');
+
+    // Generate filename with current date
+    const currentDate = new Date().toISOString().split('T')[0];
+    const filename = `wedding-rsvps-${currentDate}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(wb, filename);
   };
   
   if (!isAuthenticated) {
@@ -329,13 +381,27 @@ export default function AdminPage() {
             </>
           ) : (
             <>
-              <h2 className="text-2xl font-playfair mb-4">RSVP Submissions</h2>
-              <button 
-                onClick={loadData} 
-                className="mb-4 px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-md text-sm"
-              >
-                Refresh
-              </button>
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-playfair">RSVP Submissions</h2>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={downloadRSVPsAsExcel}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+                    disabled={rsvps.length === 0}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Download Excel
+                  </button>
+                  <button 
+                    onClick={loadData} 
+                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md text-sm"
+                  >
+                    Refresh
+                  </button>
+                </div>
+              </div>
               
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
