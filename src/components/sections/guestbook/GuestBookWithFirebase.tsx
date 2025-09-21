@@ -34,7 +34,7 @@ export const GuestBookWithFirebase: React.FC<GuestBookWithFirebaseProps> = ({ is
   const loadMessages = async () => {
     setIsLoadingMessages(true);
     try {
-      const approvedMessages = await getGuestMessages(3, true); // Get only 3 latest approved messages
+      const approvedMessages = await getGuestMessages(50, true); // Get 50 approved messages
       setMessages(approvedMessages);
     } catch (error) {
       console.error('Error loading guest messages:', error);
@@ -223,33 +223,39 @@ export const GuestBookWithFirebase: React.FC<GuestBookWithFirebaseProps> = ({ is
 
             {/* Messages Display Section */}
             <div className={`transition-all duration-700 delay-200 ${isVisible ? 'opacity-100' : 'opacity-0'}`}>
-              <div className="bg-white p-8 rounded-lg shadow-xl border border-primary/10 max-h-[600px] overflow-y-auto">
-                <h3 className="text-2xl font-playfair mb-6">Guest Messages</h3>
+              <div className="bg-white rounded-lg shadow-xl border border-primary/10 max-h-[600px] flex flex-col">
+                {/* Fixed Header */}
+                <div className="p-8 pb-4 border-b border-primary/10">
+                  <h3 className="text-2xl font-playfair">Guest Messages</h3>
+                </div>
                 
-                {isLoadingMessages ? (
-                  <div className="flex justify-center items-center h-32">
-                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
-                  </div>
-                ) : messages.length === 0 ? (
-                  <p className="text-center text-foreground/60 italic">
-                    Be the first to sign our guest book!
-                  </p>
-                ) : (
-                  <div className="space-y-6">
-                    {messages.map(message => (
-                      <div key={message.id} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
-                        <div className="flex justify-between items-center mb-2">
-                          <h4 className="font-playfair text-xl">{message.name}</h4>
-                          <span className="text-sm text-foreground/60">{message.date}</span>
+                {/* Scrollable Content */}
+                <div className="flex-1 overflow-y-auto p-8 pt-4">
+                  {isLoadingMessages ? (
+                    <div className="flex justify-center items-center h-32">
+                      <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-primary"></div>
+                    </div>
+                  ) : messages.length === 0 ? (
+                    <p className="text-center text-foreground/60 italic">
+                      Be the first to sign our guest book!
+                    </p>
+                  ) : (
+                    <div className="space-y-6">
+                      {messages.map(message => (
+                        <div key={message.id} className="border-b border-primary/10 pb-4 mb-4 last:border-0 last:mb-0 last:pb-0">
+                          <div className="flex justify-between items-center mb-2">
+                            <h4 className="font-playfair text-xl">{message.name}</h4>
+                            <span className="text-sm text-foreground/60">{message.date}</span>
+                          </div>
+                          <p className="text-sm text-foreground/80 mb-2">
+                            <span className="italic">{message.relationship}</span>
+                          </p>
+                          <p className="font-cormorant text-lg">{message.message}</p>
                         </div>
-                        <p className="text-sm text-foreground/80 mb-2">
-                          <span className="italic">{message.relationship}</span>
-                        </p>
-                        <p className="font-cormorant text-lg">{message.message}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
