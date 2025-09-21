@@ -1,10 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { submitRSVP, checkExistingRSVP } from "@/lib/firebase/rsvp";
+
+// RSVP deadline: September 20, 2025 at midnight
+const RSVP_DEADLINE = new Date('2025-09-21T00:00:00'); // September 21st at midnight = September 20th end
 
 export default function RSVP() {
   const [formData, setFormData] = useState({
@@ -20,6 +23,13 @@ export default function RSVP() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [isDeadlinePassed, setIsDeadlinePassed] = useState(false);
+  
+  // Check if deadline has passed on component mount
+  useEffect(() => {
+    const now = new Date();
+    setIsDeadlinePassed(now >= RSVP_DEADLINE);
+  }, []);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -34,6 +44,13 @@ export default function RSVP() {
   
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Check if deadline has passed before processing
+    const now = new Date();
+    if (now >= RSVP_DEADLINE) {
+      setSubmitError("RSVP deadline has passed. We're sorry, but we can no longer accept responses.");
+      return;
+    }
     
     // Basic validation
     if (!formData.name || !formData.email) {
@@ -103,6 +120,29 @@ export default function RSVP() {
     setIsSubmitting(false);
   };
   
+  // Show missed RSVP message if deadline has passed
+  if (isDeadlinePassed) {
+    return (
+      <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center p-4">
+        <div className="max-w-2xl w-full bg-white p-12 rounded-lg shadow-xl text-center border border-primary/10">
+          <h1 className="text-4xl font-playfair mb-8 text-primary">Missed RSVP</h1>
+          <div className="space-y-6 text-lg font-cormorant text-foreground/80 leading-relaxed">
+            <p>We're sorry you can't make it to our wedding. Our RSVP deadline has passed and you unfortunately did not respond.</p>
+            <p>We would have loved to have you attend but final numbers have now been turned in and your presence will be missed.</p>
+          </div>
+          <div className="mt-8">
+            <Link 
+              href="/" 
+              className="inline-block px-8 py-4 border-2 border-primary text-primary font-cormorant text-xl uppercase tracking-wider hover:bg-primary hover:text-white transition-all duration-300"
+            >
+              Return to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   if (submitSuccess) {
     return (
       <div className="min-h-screen bg-[#faf7f2] flex items-center justify-center p-4">
@@ -113,7 +153,7 @@ export default function RSVP() {
             Your RSVP has been submitted successfully. We can't wait to celebrate with you!
           </p>
           <p className="text-sm text-foreground/60">
-            Please respond by September 30th, 2025
+            Please respond by September 20th, 2025
           </p>
         </div>
       </div>
@@ -129,7 +169,7 @@ export default function RSVP() {
           <div className="text-center mb-12">
             <h1 className="text-5xl font-playfair mb-4 gold-text">RSVP</h1>
             <p className="text-xl font-cormorant text-foreground/80">
-              Please respond by September 30th, 2025
+              Please respond by September 20th, 2025
             </p>
           </div>
           
